@@ -1,0 +1,158 @@
+# Changelog
+
+日本語版は [CHANGELOG.ja.md](CHANGELOG.ja.md)。
+
+This project follows [Semantic Versioning](https://semver.org/). The human-facing version
+is bumped by hand; the build number in `src-tauri/build-number` is incremented by
+`scripts/package-macos.sh` on every packaged build.
+
+## 0.4.0 — 2026-08-14 (first public release)
+
+### Removed
+
+- **PDF support has been withdrawn.** The app no longer accepts PDF files at all: they are
+  gone from the import filter, the file dialog, and the Finder file associations, and the
+  bundled copy of pdf.js has been deleted.
+
+  It was withdrawn because **the design was wrong**. Instead of giving PDF its own display
+  layer, PDF was forced into the machinery that displays EPUB: one PDF page was passed off
+  as one EPUB chapter, the table of contents and the cover were filled in with fabricated
+  data, and the whole thing was handed to the same entry point EPUB uses. As a result the
+  EPUB column layout, page turning, and chapter loading were applied to PDF as well. The
+  glue written for that came to roughly 400 lines including the test scaffolding. Four
+  problems appeared at once: the cover could not be extracted, the text could not be
+  searched, the page stayed blank, and opening several files froze the app. "The drawing
+  step never finished", which this entry used to give as the reason, was one of those
+  symptoms — not the cause.
+
+  The right approach was to put a PDF layer over the window and hand the file straight to a
+  library that displays PDF. A separate PDF reader, built as its own project to check that,
+  displayed pages without trouble. So the PDF code that lived here was not something to
+  repair; it was something to throw away whole. Refusing the file is kinder than accepting
+  it and showing a blank page.
+
+  Three things got smaller as a result: the bundle lost 13 MB (pdf.js accounted for about
+  70% of the tracked files), four third-party attributions are no longer needed (pdf.js,
+  Adobe CMaps, Liberation fonts, Foxit fonts), and the local modifications to foliate-js
+  went from three down to one.
+
+  If PDF comes back, it will not be rebuilt inside this app's display machinery: it will be
+  a separate window driven by a PDF-only library. The removal commit is a record rather
+  than something to revert.
+
+### Added
+
+- **The bilingual pane is now reachable.** 0.3.0 shipped the implementation without exposing
+  it; there is now a "Translation" tab in Settings, an **あA** toolbar button, and
+  **View > Show / hide bilingual pane** in the menu bar.
+- **API key authentication for OpenAI-compatible APIs.** The server URL and API key are set in
+  Settings, so a server on your own machine (LM Studio, Ollama) and a cloud service both work
+  through the same path.
+- The number of cached translations is shown in Settings, and can be cleared there.
+- **Books can be dropped on the window while you are reading.** Until now only the shelf
+  accepted a drop. Drop a single book and it is imported and then **opened straight away**;
+  drop several files or a folder and they are imported while you stay on the shelf, since
+  there is no way to tell which one you meant to read.
+- **The table of contents folds branch by branch.** In a book with three levels of headings
+  the list grew long enough that reaching the chapter you wanted meant scrolling past
+  everything else. Items with children now carry a twist that opens and closes them. Opening
+  follows only the chapter being read; **branches you opened by hand stay open**, so the list
+  does not move under you while you are using it.
+
+### Fixed
+
+- **Models that think before answering returned nothing at all when asked to translate.**
+  Neither `chat_template_kwargs`, nor `reasoning_effort`, nor `/no_think` had any effect — the
+  model spent every token it was given on thinking. Telling it its thinking is already done
+  turned the same passage on the same model from **90 seconds and an empty result into 2
+  seconds and a translation**.
+- A preamble such as "English:" was left in place when translating into a language other than
+  Japanese.
+- The translation cache key did not include the source language, so changing it kept serving
+  the earlier translation.
+- **On a picture page the image used only half the window and sat against one side.** In a
+  1099 × 696 window the picture box came out 696 × 696 — square — leaving 403 pixels unused
+  every time: at the right edge in vertical writing, at the left edge in horizontal. The box
+  was sized by the column width, and the column width equals the window height, so a wide
+  window always produced a square.
+- **Double-clicking a row in the bilingual pane did nothing.** It asked the text to jump to
+  the paragraph the row came from, but the pane is built only from paragraphs **already in
+  view**, so the destination was always on screen. Instead of jumping, the paragraph is now
+  **highlighted for 1.8 seconds**. The mark clears when the page changes.
+
+### Corrected in the documentation
+
+- **The README called MOBI, AZW, AZW3 and KF8 unverified.** All four were made and opened:
+  all four work. `.azw3` and `.kf8` keep vertical writing. `.mobi` and `.azw` come out
+  horizontal, because the old MOBI format has nowhere to record vertical writing (the
+  writing-mode button in the toolbar puts it back).
+
+## 0.3.0 — 2026-08-07
+
+First release intended for other people to use.
+
+### Added
+
+- **Multiple shelves.** Separate libraries with their own books, collections, and reading
+  positions. Deleting a shelf moves its data to `Deleted/` rather than erasing it.
+- **Collections and favourites.** Nested collections, drag-free assignment from the book
+  menu, and an "unfiled" scope.
+- **Folder import.** Pick a folder and take in every book under it, recursively, with
+  progress and a cancel button.
+- **Auto page turn** on an interval, which yields to read-aloud and to manual paging.
+- **Sleep timer.** Stop reading after N minutes, then optionally sleep or shut down the
+  Mac. Shutdown waits out a 30-second grace period you can cancel.
+- **More formats**: CBZ, FB2, FBZ, and the Kindle family (MOBI/AZW/AZW3/KF8) alongside
+  EPUB. Double-clicking a book in Finder opens it.
+- **Export** the current section as audio, or as a video with the text on screen.
+- **Side-by-side translation** through any OpenAI-compatible local server.
+- Every feature is reachable by name from the native menu bar.
+- Fallback covers for books that have none; the shelf backdrop uses the cover of whatever
+  you were last reading.
+
+### Changed
+
+- Vertical/horizontal/RTL is now decided by **how the book actually typesets**, not only
+  by what the OPF declares. Arrow keys, tap zones, and the progress slider all follow that
+  same answer.
+- Image-only pages (covers, plates) fill the page box instead of floating at their
+  intrinsic size.
+- The UI was reworked to match the Swift prototype it was ported from.
+
+### Fixed
+
+- **The sleep timer can be operated from the library.** Its menu items were live there but
+  did nothing, and the timer itself was destroyed when you closed a book. It now survives
+  the move between library and reader, and can be cancelled from either.
+- Removed dead menu handlers for a menu item that no longer exists (`file.dict`).
+- Karaoke-style highlighting left painted residue in vertical multi-column layouts.
+
+### Security
+
+- **The test bus is disabled in release builds.** It long-polls a local port and executes
+  whatever arrives with the app's own privileges, so a distributed build left it open to
+  any local process that grabbed the port first — including screen capture and writing
+  files to arbitrary paths. It now requires a debug build or `EPUB_READER_TESTBUS=1`.
+  `capture_window` is gated the same way.
+- The Content Security Policy is now declared in `tauri.conf.json` as well as in the page
+  `<meta>` tags, so it also covers anything Tauri itself renders.
+
+### Packaging
+
+- `scripts/package-macos.sh` builds, re-signs ad-hoc, and produces a dmg and a zip, then
+  verifies both the way a recipient would extract them. Tauri's build-time signature
+  leaves resources unsealed, and a plain `ditto` zip smuggles AppleDouble files that break
+  the seal on `unzip`; the script exists to catch both.
+- Added `LICENSE` (BSD-3-Clause) and `THIRD_PARTY_LICENSES.md`, which itemises every
+  bundled component and the local modifications made to foliate-js.
+- Sample images under `test-books/` are now generated by
+  `scripts/make-sample-images.py` instead of being photographs of unclear provenance.
+
+## 0.2.0 — 2026-07-27 (not released)
+
+Ported display, dictionary, and translation features from the reference specification.
+
+## 0.1.0 — 2026-07-26 (not released)
+
+Initial build: library, reader with vertical writing, VOICEVOX read-aloud with
+sentence-level highlight tracking, and the reading dictionary.

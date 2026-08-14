@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "epub-reader-testbus": {
+      "command": "node",
+      "args": ["mcp/testbus-mcp/server.mjs"]
+    }
+  }
+}

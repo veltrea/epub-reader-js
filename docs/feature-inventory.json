@@ -1,0 +1,447 @@
+{
+  "note": "scripts/feature-inventory.mjs が生成する。手で編集しない。 差分が出たら、増えた項目を MANUAL / README に書いてから --write で更新する。 coverage は「記号 × 文書」の星取り図で、本体から機能を消したときに 文書へ説明が残っていないかを逆向きに調べるために使う。",
+  "version": "0.4.0",
+  "menu": {
+    "app.settings": "設定…",
+    "edit.find": "本文を検索…",
+    "file.import": "開く…",
+    "file.importFolder": "フォルダから追加…",
+    "file.newProfile": "新規書棚…",
+    "file.profiles": "書棚を管理…",
+    "file.saveAudio": "この章を音声ファイルに保存…",
+    "file.saveVideo": "この章を朗読動画に保存…",
+    "go.autoPager.custom": "間隔を指定…",
+    "go.autoPager.stop": "自動ページ送りを停止",
+    "go.next": "次のページ",
+    "go.prev": "前のページ",
+    "go.shelf": "書棚へ戻る",
+    "tts.dict": "読み上げ辞書…",
+    "tts.play": "読み上げ / 一時停止",
+    "tts.sleep.action.shutdown": "Mac をシャットダウン",
+    "tts.sleep.action.sleepSystem": "Mac をスリープ",
+    "tts.sleep.action.stopOnly": "読み上げを停止",
+    "tts.sleep.cancel": "タイマーを解除",
+    "tts.sleep.custom": "時間を指定…",
+    "tts.stop": "読み上げを停止",
+    "view.aspect": "画像の比率…",
+    "view.bookmarkAdd": "現在地をしおり",
+    "view.bookmarks": "しおり",
+    "view.css": "カスタムCSS…",
+    "view.fontDec": "文字を小さく",
+    "view.fontInc": "文字を大きく",
+    "view.fontReset": "文字サイズを標準に戻す",
+    "view.lineDec": "行間を狭く",
+    "view.lineInc": "行間を広く",
+    "view.lineReset": "行間を標準に戻す",
+    "view.margin": "余白を切り替え",
+    "view.render.friendly": "読みやすさ優先",
+    "view.render.raw": "EPUB のまま",
+    "view.spread": "見開きをずらす",
+    "view.theme.auto": "自動",
+    "view.theme.dark": "ダーク",
+    "view.theme.light": "ライト",
+    "view.theme.sepia": "セピア",
+    "view.toc": "目次",
+    "view.translate": "対訳を開く / 閉じる"
+  },
+  "settings": [
+    "autoPagerSeconds",
+    "binding",
+    "customBaseUrl",
+    "engine",
+    "fontScale",
+    "forceMargin",
+    "imageSpread",
+    "lang",
+    "lineHeight",
+    "pauseLengthScale",
+    "renderMode",
+    "shelfView",
+    "sleepTimerAction",
+    "sleepTimerMinutes",
+    "sortKey",
+    "speaker",
+    "speedScale",
+    "textSpread",
+    "theme",
+    "translation",
+    "ttsSaveDir",
+    "userCSS",
+    "writingMode"
+  ],
+  "formats": [
+    "azw",
+    "azw3",
+    "cbz",
+    "epub",
+    "fb2",
+    "fbz",
+    "kf8",
+    "mobi"
+  ],
+  "backendCommands": [
+    "capture_window",
+    "delete_book",
+    "expand_book_paths",
+    "import_book",
+    "import_book_bytes",
+    "list_books",
+    "lm_chat",
+    "lm_models",
+    "pick_directory",
+    "pick_epubs",
+    "pick_folder_epubs",
+    "read_book_b64",
+    "read_file_b64",
+    "retire_profile_data",
+    "save_bytes",
+    "save_file_dialog",
+    "store_get",
+    "store_set",
+    "sync_menu",
+    "system_shutdown",
+    "system_sleep",
+    "take_pending_open",
+    "testbus_enabled",
+    "voicevox_register_word",
+    "voicevox_speakers",
+    "voicevox_synthesize",
+    "voicevox_version",
+    "write_bytes"
+  ],
+  "testbus": {
+    "reader": [
+      "autoPagerFire",
+      "autoPagerStart",
+      "autoPagerState",
+      "autoPagerStop",
+      "backToShelf",
+      "barsState",
+      "bookmarkAdd",
+      "bookmarkClear",
+      "bookmarkList",
+      "chromeState",
+      "computedFont",
+      "currentText",
+      "dictGet",
+      "dictPrepare",
+      "dictSet",
+      "displayState",
+      "dropFiles",
+      "fxlInfo",
+      "getCSS",
+      "getSettings",
+      "gotoFraction",
+      "gotoHref",
+      "highlightedText",
+      "imagePageInfo",
+      "marginState",
+      "mediaCaps",
+      "menuState",
+      "page",
+      "progressDir",
+      "rubyInfo",
+      "search",
+      "searchClose",
+      "searchOpen",
+      "setCSS",
+      "setDisplay",
+      "setSetting",
+      "setWritingMode",
+      "sideClose",
+      "sideOpen",
+      "sideState",
+      "sleepTimerCancel",
+      "sleepTimerFire",
+      "sleepTimerShutdownCancel",
+      "sleepTimerStart",
+      "sleepTimerState",
+      "state",
+      "tapZones",
+      "toc",
+      "tocJump",
+      "toggleMargin",
+      "toggleSpread",
+      "translateDblClick",
+      "translateRefresh",
+      "translateState",
+      "translateToggle",
+      "ttsFromHere",
+      "ttsHighlightInfo",
+      "ttsPause",
+      "ttsPlay",
+      "ttsResume",
+      "ttsSaveSection",
+      "ttsSaveVideo",
+      "ttsState",
+      "ttsStop",
+      "videoDiag",
+      "writingMode"
+    ],
+    "shelf": [
+      "addProfile",
+      "assign",
+      "cancelImport",
+      "collectionAdd",
+      "collectionMove",
+      "collectionRemove",
+      "collectionRename",
+      "collections",
+      "favorite",
+      "import",
+      "importState",
+      "library",
+      "menuState",
+      "open",
+      "profiles",
+      "remove",
+      "removeProfile",
+      "renameProfile",
+      "resetLibrary",
+      "setFilter",
+      "setScope",
+      "setSort",
+      "setView",
+      "setYomi",
+      "shelfState",
+      "sleepTimerCancel",
+      "sleepTimerFire",
+      "sleepTimerShutdownCancel",
+      "sleepTimerStart",
+      "sleepTimerState",
+      "state",
+      "switchProfile",
+      "visible"
+    ]
+  },
+  "coverage": {
+    "app.settings": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.md"
+    ],
+    "edit.find": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "file.import": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "file.importFolder": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "file.newProfile": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "file.profiles": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "file.saveAudio": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "file.saveVideo": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "format.azw": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.azw3": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.cbz": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.epub": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.fb2": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.fbz": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.kf8": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "format.mobi": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "go.autoPager.custom": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "go.autoPager.stop": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "go.next": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "go.prev": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "go.shelf": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "tts.dict": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "tts.play": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "tts.sleep.action.shutdown": [
+      "MANUAL.ja.md",
+      "README.md"
+    ],
+    "tts.sleep.action.sleepSystem": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md"
+    ],
+    "tts.sleep.action.stopOnly": [
+      "MANUAL.ja.md"
+    ],
+    "tts.sleep.cancel": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "tts.sleep.custom": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "tts.stop": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.md"
+    ],
+    "view.aspect": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.bookmarkAdd": [
+      "MANUAL.ja.md"
+    ],
+    "view.bookmarks": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "view.css": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "view.fontDec": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.fontInc": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.fontReset": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.lineDec": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.lineInc": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.lineReset": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.margin": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.render.friendly": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.render.raw": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.spread": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ],
+    "view.theme.auto": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.md"
+    ],
+    "view.theme.dark": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "view.theme.light": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "view.theme.sepia": [
+      "MANUAL.ja.md",
+      "MANUAL.md",
+      "README.ja.md",
+      "README.md"
+    ],
+    "view.toc": [
+      "MANUAL.md",
+      "README.md"
+    ],
+    "view.translate": [
+      "MANUAL.ja.md",
+      "MANUAL.md"
+    ]
+  }
+}

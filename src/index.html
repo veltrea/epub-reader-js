@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: ipc: http://ipc.localhost; connect-src 'self' blob: data: ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:*; img-src 'self' blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:; media-src blob: data:;">
+<title>EPUB Reader</title>
+<link rel="stylesheet" href="styles/app.css">
+<style>
+  /* 画面の骨格。Swift 版は NavigationSplitView(サイドバー + 書棚)。 */
+  body { overflow: hidden; }
+  #root { display: flex; height: 100%; }
+
+  /* ---- 書棚の地 -----------------------------------------------------------
+     最後に読んだ本のカバーを敷き、弱くぼかす。「何の本か分かる程度」に留める
+     （ShelfBackdrop: blur 20 / opacity .55 の上に地色を .3 重ねる）。 */
+  #ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  #ambient .amb-img {
+    position: absolute; inset: -40px;
+    background-size: cover; background-position: center;
+    filter: blur(20px); opacity: .55;
+  }
+  #ambient .amb-fade { position: absolute; inset: 0; background: var(--bg); opacity: .3; }
+
+  /* ---- サイドバー --------------------------------------------------------- */
+  #sidebar {
+    position: relative; z-index: 1;
+    flex: none; width: 184px; height: 100%; overflow-y: auto;
+    padding: 8px 0 24px;
+    /* 地のカバーをわずかに透かす（Swift: systemBackground.opacity(0.74)） */
+    background: color-mix(in srgb, var(--bg-sidebar) 74%, transparent);
+    border-inline-end: .5px solid var(--separator);
+  }
+  body.no-sidebar #sidebar { display: none; }
+
+  /* ---- 書棚(右ペイン) ----------------------------------------------------- */
+  #pane { position: relative; z-index: 1; flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  /* ヘッダ: 2段（タイトル+冊数 / フィルタ+表示+並び替え）。padding h24 v14 */
+  #head {
+    flex: none; padding: 14px 24px; display: flex; flex-direction: column; gap: 10px;
+    background: color-mix(in srgb, var(--bg) 74%, transparent);
+    border-bottom: .5px solid var(--separator);
+  }
+  #head .line { display: flex; align-items: center; gap: 10px; }
+  #head .title { font-size: 17px; font-weight: 700; }
+  #head .count { font-size: 12px; color: var(--muted); }
+  #head .grow { flex: 1; }
+  /* フィルタ欄: 角丸8・quaternary の下地・padding h10 v6 */
+  #filter-box {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 8px; background: var(--fill-quaternary);
+  }
+  #filter-box .sym { width: 15px; height: 15px; color: var(--muted); flex: none; }
+  #filter { background: none; border: none; padding: 0; width: 240px; font-size: 13px; }
+  #filter:focus { outline: none; }
+  #filter-clear { padding: 0; width: 15px; height: 15px; color: var(--muted); }
+  #filter-field { font-size: 12px; color: var(--accent); background-image: none; padding: 0 4px; }
+  #sort-btn { color: var(--accent); font-size: 12px; }
+
+  /* ---- 本の一覧 ----------------------------------------------------------- */
+  #scroll { flex: 1; overflow-y: auto; position: relative; }
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 28px 24px; padding: 24px;
+  }
+  /* 五十音の見出しはスクロール中もピン留め（.bar の地） */
+  .section-head {
+    position: sticky; top: 0; z-index: 3;
+    font-size: 15px; font-weight: 700; padding: 6px 24px;
+    background: var(--bar); backdrop-filter: blur(24px) saturate(180%);
+  }
+  .section-grid { padding-bottom: 8px; }
+
+  /* セル: カバー 150x220(角丸6・1px 枠・影) + タイトル2行 + 作者1行 */
+  .book { cursor: pointer; }
+  .book .cover {
+    position: relative; width: 100%; max-width: 180px; aspect-ratio: 15 / 22;
+    border-radius: 6px; overflow: hidden; background: #2a2f3d;
+    box-shadow: var(--shadow-cell), inset 0 0 0 1px rgba(0, 0, 0, .12);
+  }
+  .book .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .book .title {
+    margin-top: 8px; font-size: 11.5px; line-height: 1.35; height: 2.7em;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .book .author {
+    font-size: 10.5px; color: var(--muted); margin-top: 2px; height: 1.4em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 読了率: 黒 65% のカプセル(左下・余白6) */
+  .book .prog {
+    position: absolute; left: 6px; bottom: 6px; z-index: 3;
+    background: rgba(0, 0, 0, .65); color: #fff; font-size: 9.5px; font-weight: 600;
+    padding: 2px 6px; border-radius: 999px;
+  }
+  /* お気に入りは左上（右上はファイル欠落の警告が使う） */
+  .book .fav {
+    position: absolute; left: 6px; top: 6px; z-index: 3;
+    width: 19px; height: 19px; border-radius: 50%; background: rgba(0, 0, 0, .65);
+    display: flex; align-items: center; justify-content: center; color: var(--tint-yellow);
+  }
+  .book .fav svg { width: 11px; height: 11px; }
+  .book .missing {
+    position: absolute; right: 6px; top: 6px; z-index: 3;
+    color: var(--tint-orange); width: 15px; height: 15px;
+  }
+  .book.dragging { opacity: .5; }
+
+  /* ---- 表紙のない本に描く代替表紙 ----------------------------------------
+     装丁を模した二重罫と本文の線を敷き、その上にタイトルを重ねる。 */
+  .ph {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #252f40 0%, #12181f 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ph::before {
+    content: ""; position: absolute; inset: 7%;
+    border: 1px solid rgba(255, 255, 255, .26);
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .08);
+  }
+  .ph::after {
+    content: ""; position: absolute; inset: 15% 12%;
+    background: repeating-linear-gradient(to left,
+      rgba(255, 255, 255, .10) 0 1px, transparent 1px 9px);
+  }
+  .ph .ph-title {
+    position: relative; z-index: 1; color: #fff; font-weight: 700;
+    font-size: 11px; line-height: 1.5; text-align: center; padding: 0 16px;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* ---- 「続きを読む」段 ---------------------------------------------------
+     カバー 130x190・間 22・padding 24。地は書棚全体の背景に任せる。 */
+  #hero {
+    display: flex; align-items: flex-start; gap: 22px; padding: 24px; cursor: pointer;
+    border-bottom: .5px solid var(--separator);
+  }
+  #hero .hero-cover {
+    position: relative; flex: none; width: 130px; height: 190px;
+    border-radius: 6px; overflow: hidden; box-shadow: var(--shadow-hero);
+  }
+  #hero .hero-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #hero .hero-info { min-width: 0; padding-top: 2px; }
+  #hero .hero-title { font-size: 17px; font-weight: 700; line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #hero .hero-author { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  #hero .hero-progress { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  #hero .hero-continue { margin-top: 14px; }
+
+  /* ---- 空状態 ------------------------------------------------------------- */
+  .empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; height: 100%; color: var(--fg); text-align: center; padding: 40px;
+  }
+  .empty .sym { width: 52px; height: 52px; color: var(--muted); }
+  .empty .head { font-size: 15px; font-weight: 600; }
+  .empty .sub { font-size: 12px; color: var(--muted); }
+
+  /* ---- 取り込み中の帯 -----------------------------------------------------
+     画面の操作は塞がない（何十冊もの登録を待つあいだ読書ができないのは困る）。 */
+  #import-banner {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 40;
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 18px; border-radius: 12px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(30px) saturate(180%);
+    border: .5px solid var(--separator); box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+    max-width: min(560px, 90vw);
+  }
+  #import-banner[hidden] { display: none; }
+  #import-banner .ib-title { font-size: 13px; font-weight: 600; }
+  #import-banner .ib-current {
+    font-size: 11px; color: var(--muted); max-width: 320px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #import-banner progress { width: 110px; }
+
+  #backfill { color: var(--muted); font-size: 11px; padding: 8px 24px 0; }
+</style>
+</head>
+<body>
+<div id="ambient" hidden><div class="amb-img"></div><div class="amb-fade"></div></div>
+
+<div id="root">
+  <nav id="sidebar"></nav>
+  <div id="pane">
+    <header id="head">
+      <div class="line">
+        <button id="btn-sidebar" class="icon plain" data-i18n-title="shelf.sidebarToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M9.5 4.5v15"/>
+          </svg>
+        </button>
+        <span class="title" id="scope-title">書棚</span>
+        <span class="count" id="scope-count"></span>
+        <span class="grow"></span>
+        <button id="btn-settings" class="icon" data-i18n-title="shelf.settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.1 13.7a7.6 7.6 0 0 0 0-3.4l2-1.5-1.9-3.3-2.4.9a7.6 7.6 0 0 0-2.9-1.7L13.5 2h-3l-.4 2.7a7.6 7.6 0 0 0-2.9 1.7l-2.4-.9L2.9 8.8l2 1.5a7.6 7.6 0 0 0 0 3.4l-2 1.5 1.9 3.3 2.4-.9a7.6 7.6 0 0 0 2.9 1.7l.4 2.7h3l.4-2.7a7.6 7.6 0 0 0 2.9-1.7l2.4.9 1.9-3.3z"/>
+          </svg>
+        </button>
+        <button id="btn-import">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span data-i18n="shelf.import">本を追加</span>
+        </button>
+      </div>
+      <div class="line">
+        <div id="filter-box">
+          <svg class="sym" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="9.2"/><path d="M7.5 9.5h9M9 12.5h6M10.5 15.5h3"/>
+          </svg>
+          <input id="filter" type="text" data-i18n-ph="shelf.filter">
+          <button id="filter-clear" hidden>
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/>
+              <path d="M8.7 8.7l6.6 6.6M15.3 8.7l-6.6 6.6" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <select id="filter-field">
+            <option value="all" data-i18n="shelf.field.all">すべて</option>
+            <option value="title" data-i18n="shelf.field.title">タイトル</option>
+            <option value="author" data-i18n="shelf.field.author">作者</option>
+            <option value="publisher" data-i18n="shelf.field.publisher">出版社</option>
+          </select>
+        </div>
+        <span class="grow"></span>
+        <div class="segmented" id="view-seg">
+          <button data-view="grid" data-i18n-title="shelf.view.grid">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/>
+              <rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>
+            </svg>
+          </button>
+          <button data-view="gojuon" data-i18n-title="shelf.view.gojuon">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M4 6.5h16M4 12h16M4 17.5h16"/>
+            </svg>
+          </button>
+        </div>
+        <button id="sort-btn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 4v16M7 20l-3-3M7 4l3 3M17 20V4M17 4l3 3M17 20l-3-3"/>
+          </svg>
+          <span id="sort-label"></span>
+        </button>
+      </div>
+    </header>
+    <div id="scroll">
+      <div id="backfill" hidden></div>
+      <div id="shelf"></div>
+    </div>
+  </div>
+</div>
+
+<div id="import-banner" hidden>
+  <progress id="ib-progress" max="1" value="0"></progress>
+  <div>
+    <div class="ib-title" id="ib-title"></div>
+    <div class="ib-current" id="ib-current"></div>
+  </div>
+  <button id="ib-cancel" class="bordered" data-i18n="shelf.importCancel">中止</button>
+</div>
+
+<div id="ctxmenu" hidden></div>
+
+<input type="file" id="file-fallback" accept=".epub,.cbz,.fb2,.fbz,.mobi,.azw,.azw3,.kf8" multiple hidden>
+
+<div id="dict-modal"></div>
+<div id="settings-modal"></div>
+
+<script type="module" src="app/shelf.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+# テストと静的チェック。ビルドは macOS でしか通らないので macOS ランナーで回す。
+#
+# .app のパッケージングはここでやらない——ad-hoc 署名は「手元の Mac で署名した cdHash を
+# 固定して配る」ことに意味があり、CI で署名し直すと配布物ごとに cdHash が変わって、
+# 受け取った人が権限を許可し直すはめになる。配布物は scripts/package-macos.sh で作る。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Logic tests (DOM-free)
+        run: node tests/logic.test.mjs
+
+      - name: Frontend modules parse
+        run: |
+          # src/ は素の ESM だが .js なので、Node に ESM として読ませるために
+          # 一時的に type=module を置く(リポジトリには package.json を置かない方針)。
+          echo '{"type":"module"}' > src/package.json
+          trap 'rm -f src/package.json' EXIT
+          for f in src/app/*.js src/foliate-js/*.js tests/*.mjs mcp/testbus-mcp/*.mjs; do
+            node --check "$f"
+          done
+          echo "ok"
+
+      - name: Locales have the same keys
+        run: |
+          node -e '
+            const fs = require("fs");
+            const keys = (f) => new Set(Object.keys(JSON.parse(fs.readFileSync(f, "utf8"))));
+            const ja = keys("src/locales/ja.json"), en = keys("src/locales/en.json");
+            const missing = (a, b) => [...a].filter((k) => !b.has(k));
+            const inEn = missing(ja, en), inJa = missing(en, ja);
+            if (inEn.length || inJa.length) {
+              if (inEn.length) console.error("missing in en.json:", inEn);
+              if (inJa.length) console.error("missing in ja.json:", inJa);
+              process.exit(1);
+            }
+            console.log(`ok — ${ja.size} keys in both`);
+          '
+
+      - name: No hardcoded Japanese in user-facing strings
+        run: |
+          # 画面に出る文字列は locales/*.json から引くこと。
+          # grep 一本だと alert()/confirm() しか見られず、`el.textContent = '本をここにドロップ'`
+          # のような代入を取りこぼす。出口(textContent / innerHTML / title / label など)を
+          # まとめて見る検査に寄せた。
+          node scripts/check-ui-strings.mjs
+
+      - name: Menu items all have a handler
+        # 「メニューにあるのに押しても何も起きない」を落とす。menu.rs が出す id と
+        # reader.js / shelf.js のハンドラ表を突き合わせる(目視では見つからない穴)。
+        run: node scripts/check-menu-wiring.mjs
+
+      - name: Config, versions and secrets
+        # 版番号の食い違い・ビルド番号の焼き忘れ・CSP の抜け・秘匿パスの混入。
+        run: node scripts/check-config.mjs
+
+      - name: Feature inventory matches the code
+        # 機能を足したのに docs/feature-inventory.json を更新していない＝文書に書き漏らす。
+        # 差分がそのまま「書く対象」になる。
+        run: node scripts/feature-inventory.mjs
+
+  rust:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Tests
+        working-directory: src-tauri
+        run: cargo test --lib
+
+      - name: Clippy
+        working-directory: src-tauri
+        run: cargo clippy --lib -- -D warnings
+
+      - name: Release build compiles
+        working-directory: src-tauri
+        run: cargo build --release

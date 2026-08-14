@@ -1,0 +1,282 @@
+/* 見た目の基準は Swift 版(spike-readium)。
+   SwiftUI + Mac Catalyst がそのまま描いた姿に合わせるので、独自のデザイン言語は持たない。
+   色は macOS のシステム色、寸法は ShelfView.swift / ReaderView.swift の実数をそのまま写す。
+
+   **UI の配色はシステムの外観(ライト/ダーク)に従う。** 設定の「テーマ」は
+   *本文だけ* に効く(Swift 版も preferredColorScheme を指定していない＝アプリの地は
+   常にシステム追従で、theme は本文へ注入する CSS のためだけにある)。 */
+:root {
+  color-scheme: light dark;
+
+  /* --- 地 --- */
+  --bg: #ffffff;             /* コンテンツの地(systemBackground) */
+  --bg-sidebar: #ececee;     /* サイドバー */
+  --bar: rgba(246, 246, 246, .82); /* ツールバー(.bar / thickMaterial 相当) */
+  --group-bg: #f2f2f7;       /* グループ化リストの地 */
+  --group-row: #ffffff;      /* グループ化リストの行 */
+
+  /* --- 文字 --- */
+  --fg: #000000;                        /* label */
+  --muted: rgba(60, 60, 67, .6);        /* secondaryLabel */
+  --muted2: rgba(60, 60, 67, .3);       /* tertiaryLabel */
+
+  /* --- 線・塗り --- */
+  --separator: rgba(60, 60, 67, .29);
+  --fill-quaternary: rgba(116, 116, 128, .08);  /* フィルタ欄などの下地 */
+  --fill-tertiary: rgba(118, 118, 128, .12);
+  --segment-bg: rgba(118, 118, 128, .12);
+  --segment-sel: #ffffff;
+
+  /* --- 色 --- */
+  --accent: #007aff;         /* systemBlue */
+  --accent-hover: #0a6fd8;
+  --tint-teal: #30b0c7;      /* .teal */
+  --tint-indigo: #5856d6;    /* .indigo */
+  --tint-yellow: #ffcc00;    /* .yellow(お気に入りの星) */
+  --tint-orange: #ff9500;    /* .orange(ファイル欠落) */
+
+  --shadow-cell: 0 3px 5px rgba(0, 0, 0, .18);
+  --shadow-hero: 0 5px 10px rgba(0, 0, 0, .4);
+  --shadow-sheet: 0 16px 60px rgba(0, 0, 0, .45);
+
+  /* 本文用(縦書きの見出し等で使う明朝) */
+  --serif: "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1c;
+    --bg-sidebar: #1f2020;
+    --bar: rgba(32, 32, 34, .86);
+    --group-bg: #1c1c1e;
+    --group-row: #2c2c2e;
+
+    --fg: #ffffff;
+    --muted: rgba(235, 235, 245, .6);
+    --muted2: rgba(235, 235, 245, .3);
+
+    --separator: rgba(255, 255, 255, .13);
+    --fill-quaternary: rgba(118, 118, 128, .18);
+    --fill-tertiary: rgba(118, 118, 128, .24);
+    --segment-bg: rgba(118, 118, 128, .24);
+    --segment-sel: rgba(120, 120, 128, .5);
+
+    --accent: #0a84ff;
+    --accent-hover: #3d9bff;
+    --tint-teal: #40c8e0;
+    --tint-indigo: #5e5ce6;
+  }
+}
+
+* { box-sizing: border-box; }
+/* button/input に display を与えているので、UA の [hidden] 規則が負ける。
+   hidden 属性は常に効かせる(「しおりを追加」が目次の側に出る、等を防ぐ)。 */
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  /* SwiftUI の既定書体(SF Pro / ヒラギノ角ゴ)。Catalyst の 77% 縮尺に合わせて 13px を基準にする。 */
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+        "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- ボタン --------------------------------------------------------------
+   SwiftUI の既定は「枠なし・文字はアクセント色」(.borderless)。
+   枠付きは .borderedProminent(青ベタ)と .bordered(灰の下地)だけ。 */
+button {
+  font: inherit; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: none; border: none; border-radius: 6px; padding: 3px 6px;
+  color: var(--accent); cursor: pointer;
+  transition: background .12s, opacity .12s;
+}
+button:hover { background: var(--fill-quaternary); }
+button:disabled { opacity: .35; cursor: default; background: none; }
+/* .borderedProminent — 青ベタ */
+button.primary {
+  background: var(--accent); color: #fff; border-radius: 6px;
+  padding: 5px 14px; font-weight: 500;
+}
+button.primary:hover { background: var(--accent-hover); }
+button.primary:disabled { background: var(--accent); }
+/* .bordered — 灰の下地 */
+button.bordered {
+  background: var(--fill-tertiary); color: var(--fg);
+  padding: 4px 12px;
+}
+button.bordered:hover { background: var(--fill-quaternary); }
+/* アイコンだけのボタン(ツールバー) */
+button.icon {
+  padding: 0; width: 26px; height: 26px; color: var(--accent); border-radius: 5px;
+}
+button.icon svg { width: 17px; height: 17px; display: block; }
+button.icon.plain { color: var(--muted); }
+button.icon.plain:hover { color: var(--fg); }
+
+/* ---- 入力 ---------------------------------------------------------------- */
+input, select, textarea {
+  font: inherit; color: var(--fg);
+  background: var(--fill-quaternary); border: none;
+  border-radius: 6px; padding: 4px 8px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent); outline-offset: -1px;
+}
+input[type="text"], input[type="search"], input[type="number"], textarea {
+  background: var(--fill-quaternary);
+}
+select {
+  -webkit-appearance: none; appearance: none;
+  padding: 3px 20px 3px 8px; background: none; color: var(--fg); cursor: pointer;
+  /* SwiftUI の Menu ラベルと同じ、上下シェブロン */
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a8e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 10l4-4 4 4M8 14l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 2px center; background-size: 11px;
+}
+a { color: var(--accent); }
+
+/* ---- スライダー(SwiftUI の Slider) -------------------------------------- */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  background: none; padding: 0; height: 20px; width: 100%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(to var(--track-to, right),
+    var(--accent) 0, var(--accent) calc(var(--track-p, 0) * 100%),
+    var(--fill-tertiary) calc(var(--track-p, 0) * 100%), var(--fill-tertiary) 100%);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; margin-top: -6px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35), 0 0 0 .5px rgba(0, 0, 0, .1);
+}
+
+/* ---- セグメンテッドコントロール ------------------------------------------ */
+.segmented {
+  display: inline-flex; padding: 2px; gap: 2px;
+  background: var(--segment-bg); border-radius: 7px;
+}
+.segmented button {
+  border-radius: 5px; padding: 3px 12px; color: var(--fg); background: none;
+  font-size: 12px; min-height: 20px;
+}
+.segmented button.on { background: var(--segment-sel); box-shadow: 0 1px 2px rgba(0, 0, 0, .18); }
+.segmented button:hover:not(.on) { background: var(--fill-quaternary); }
+
+/* ---- トグル(SwiftUI の Toggle) ------------------------------------------ */
+.switch { position: relative; width: 38px; height: 22px; flex: none; margin-inline-start: auto; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch .track {
+  position: absolute; inset: 0; border-radius: 999px; background: var(--fill-tertiary);
+  transition: background .15s;
+}
+.switch .knob {
+  position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .15s;
+}
+.switch input:checked ~ .track { background: #34c759; }
+.switch input:checked ~ .knob { transform: translateX(16px); }
+
+/* ---- ステッパー(SwiftUI の Stepper) -------------------------------------- */
+.stepper { display: inline-flex; margin-inline-start: auto; background: var(--fill-tertiary); border-radius: 6px; }
+.stepper button { width: 30px; height: 22px; padding: 0; color: var(--fg); border-radius: 0; }
+.stepper button:first-child { border-radius: 6px 0 0 6px; }
+.stepper button:last-child { border-radius: 0 6px 6px 0; }
+.stepper .sep { width: .5px; background: var(--separator); }
+
+/* ---- シート(SwiftUI の .sheet) -------------------------------------------
+   Catalyst のシートは画面中央に浮くカード。角丸 12・地は systemBackground。 */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, .28);
+  display: none; align-items: center; justify-content: center; z-index: 50;
+}
+.modal-backdrop.show { display: flex; }
+.modal {
+  background: var(--group-bg); color: var(--fg);
+  border-radius: 12px; width: min(620px, 92vw); max-height: 82vh; overflow: auto;
+  box-shadow: var(--shadow-sheet); padding: 0;
+}
+/* シートの上端: 左に「閉じる」、右に確定系(SwiftUI の toolbar 配置) */
+.sheet-bar {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px 6px; background: var(--group-bg);
+}
+.sheet-bar .grow { flex: 1; }
+.modal h2 { margin: 0; padding: 4px 18px 14px; font-size: 22px; font-weight: 700; letter-spacing: 0; }
+.modal .desc { color: var(--muted); font-size: 11px; margin: 0; padding: 6px 18px 12px; line-height: 1.5; }
+.modal-body { padding: 0 18px 18px; }
+
+/* グループ化リスト(SwiftUI の Form/List .insetGrouped) */
+.group { background: var(--group-row); border-radius: 8px; overflow: hidden; margin-bottom: 18px; }
+.group-head { font-size: 11px; color: var(--muted); padding: 0 4px 5px; }
+.row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 12px; min-height: 32px;
+  border-top: 1px solid var(--separator);
+}
+.group .row:first-child { border-top: none; }
+.row > label { color: var(--fg); flex: none; }
+.row .grow { flex: 1; min-width: 0; }
+/* 行の右端に値を置く(SwiftUI の LabeledContent) */
+.row .value { color: var(--muted); margin-inline-start: auto; text-align: end; }
+.row select, .row input[type="range"] { margin-inline-start: auto; }
+.row select { max-width: 60%; text-align: end; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 6px 18px 18px; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted2); margin-right: 5px; }
+.status-dot.ok { background: #34c759; }
+.status-dot.ng { background: #ff453a; }
+
+/* ---- サイドバー(List .listStyle(.sidebar)) ------------------------------- */
+.sidebar-section {
+  font-size: 11px; color: var(--muted); font-weight: 400;
+  margin: 14px 10px 4px; display: flex; align-items: center; gap: 6px;
+}
+.sidebar-section .grow { flex: 1; }
+.sidebar-section button { padding: 0; width: 18px; height: 18px; }
+.sidebar-section button svg { width: 11px; height: 11px; }
+.side-row {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 4px 8px; margin: 1px 6px; width: calc(100% - 12px);
+  border-radius: 6px; background: none; color: var(--fg);
+  font-size: 13px; text-align: start; cursor: pointer;
+}
+.side-row:hover { background: var(--fill-quaternary); }
+/* 選択行は accentColor 0.18(Swift の selectionBackground と同値) */
+.side-row.on { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.side-row.drop { box-shadow: inset 0 0 0 2px var(--accent); }
+.side-row .sym { flex: none; width: 17px; height: 17px; color: var(--accent); }
+.side-row .sym svg { width: 100%; height: 100%; display: block; }
+.side-row .label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-row .count { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.side-row.muted { color: var(--muted); }
+.side-row.muted .sym { color: var(--muted); }
+/* 階層の開閉。子を持たない行でも位置が揃うよう枠は必ず取る */
+.side-row .twist {
+  flex: none; width: 12px; height: 12px; color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.side-row .twist svg { width: 9px; height: 9px; transition: transform .12s ease; }
+.side-row .twist.open svg { transform: rotate(90deg); }
+.side-row .twist.hidden { visibility: hidden; }
+
+/* ---- 右クリックメニュー(UIKit のコンテキストメニュー) --------------------- */
+#ctxmenu {
+  position: fixed; z-index: 60; min-width: 210px; padding: 4px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(30px) saturate(180%);
+  border: .5px solid var(--separator); border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35);
+}
+#ctxmenu[hidden] { display: none; }
+#ctxmenu button {
+  display: flex; width: 100%; justify-content: flex-start; gap: 8px;
+  padding: 4px 8px; font-size: 13px; color: var(--fg); border-radius: 4px;
+}
+#ctxmenu button:hover { background: var(--accent); color: #fff; }
+#ctxmenu button.danger { color: #ff453a; }
+#ctxmenu button.danger:hover { background: #ff453a; color: #fff; }
+#ctxmenu .sep { height: .5px; margin: 4px 6px; background: var(--separator); }
+#ctxmenu .head { padding: 5px 8px 2px; font-size: 11px; color: var(--muted); }
