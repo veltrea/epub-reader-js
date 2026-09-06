@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>画像ページ検証ハーネス</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1b1b1c; color: #ddd; font: 12px system-ui; }
+  #bar { position: fixed; z-index: 9; top: 0; left: 0; right: 0; height: 24px; display: flex; gap: 8px; align-items: center; padding: 0 8px; background: #000a; }
+  #wrap { position: absolute; inset: 24px 0 0 0; }
+  foliate-view { width: 100%; height: 100%; }
+  button { font: inherit; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <button id="prev">◀</button><button id="next">▶</button>
+  <label>section <input id="sec" type="number" value="0" style="width:60px"></label>
+  <button id="go">go</button>
+  <span id="info"></span>
+</div>
+<div id="wrap"></div>
+<script type="module">
+import { makeBook } from '../src/foliate-js/view.js';
+import '../src/foliate-js/view.js';
+
+const q = new URLSearchParams(location.search);
+// ?book=... で任意の EPUB を指す(実書籍で見るときは test-books に置くか相対パスで)
+const src = q.get('book') || '../test-books/split-photobook.epub';
+
+const buf = await (await fetch(src)).arrayBuffer();
+const file = new File([buf], 'book.epub');
+const book = await makeBook(file);
+
+const view = document.createElement('foliate-view');
+document.getElementById('wrap').append(view);
+view.addEventListener('load', ({ detail }) => {
+  // app/reader.js onLoad と同じ判定
+  const body = detail.doc.body;
+  const text = (body?.textContent || '').replace(/\s/g, '');
+  const imgs = body?.querySelectorAll('img, svg') || [];
+  if (imgs.length === 1 && text.length < 8) body.setAttribute('data-image-page', '');
+  else body?.removeAttribute('data-image-page');
+});
+await view.open(book);
+view.renderer.setStyles?.(`
+  html { font-size: 100% !important; }
+  p, li, div, body { line-height: 1.8 !important; }
+  img, svg { max-width: 100%; max-height: 100vh; height: auto; }
+  html, body { background: #1b1b1c !important; color: #e5e2e3 !important; }
+`);
+await view.init({ showTextStart: true });
+
+const info = document.getElementById('info');
+const dump = () => {
+  const c = view.renderer?.getContents?.()[0];
+  const doc = c?.doc; if (!doc) return;
+  const win = doc.defaultView, de = doc.documentElement;
+  const el = doc.body.querySelector('img, svg');
+  const r = el?.getBoundingClientRect();
+  const cs = win.getComputedStyle(de);
+  info.textContent = JSON.stringify({
+    i: c.index, mark: doc.body.hasAttribute('data-image-page'),
+    wm: cs.writingMode, colW: cs.columnWidth,
+    html: [de.clientWidth, de.clientHeight],
+    img: el ? [el.tagName, Math.round(r.width), Math.round(r.height), Math.round(r.x), Math.round(r.y)] : null,
+    frame: [win.innerWidth, win.innerHeight],
+  });
+  window.__info = info.textContent;
+};
+view.addEventListener('relocate', () => setTimeout(dump, 60));
+document.getElementById('prev').onclick = () => view.prev();
+document.getElementById('next').onclick = () => view.next();
+document.getElementById('go').onclick = async () => {
+  await view.goTo(parseInt(document.getElementById('sec').value, 10));
+  setTimeout(dump, 200);
+};
+window.__view = view; window.__dump = dump;
+setTimeout(dump, 300);
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Rust / Tauri build artifacts (8GB+)
+target/
+
+# Tauri generated schemas
+**/gen/schemas/
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store
+
+# Claude Code の設定一式。端末ごとの許可リストや MCP の設定にパスや鍵が混ざりやすく、
+# 漏れたときの被害が大きいので、共有できそうな内容でもフォルダごと除外する。
+.claude/
+
+
+dist/

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "epub-reader",
+  "version": "0.4.0",
+  "identifier": "dev.veltrea.epub-reader",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "EPUB Reader",
+        "url": "index.html",
+        "width": 1100,
+        "height": 820,
+        "center": true,
+        "minWidth": 640,
+        "minHeight": 480,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' blob: data: ipc: http://ipc.localhost; connect-src 'self' blob: data: ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:*; img-src 'self' blob: data:; style-src 'self' blob: 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:; media-src blob: data:; frame-src blob: data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "fileAssociations": [
+      {
+        "ext": [
+          "epub",
+          "cbz",
+          "fb2",
+          "fbz",
+          "mobi",
+          "azw",
+          "azw3",
+          "kf8"
+        ],
+        "name": "Book",
+        "description": "E-book",
+        "role": "Viewer"
+      }
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

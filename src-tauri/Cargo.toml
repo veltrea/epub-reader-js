@@ -1,0 +1,43 @@
+[package]
+name = "epub-reader"
+version = "0.4.0"
+description = "Japanese e-book reader with vertical writing and VOICEVOX/AivisSpeech read-aloud (foliate-js + Tauri)"
+authors = ["veltrea <veltrea@outlook.com>"]
+license = "BSD-3-Clause"
+repository = "https://github.com/veltrea/epub-reader-js"
+readme = "../README.md"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "epub_reader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+base64 = "0.22"
+dirs = "5"
+xcap = "0.9"
+
+# Windows: 表示言語(LANGID)を取るためだけに使う。menu.rs の win_ui_lang を参照。
+# Tauri が既に windows-sys を使っているので、新しくコンパイルするものは増えない。
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Globalization"] }
+# 関連付けから本を開くたびに新しいプロセスが立つのを防ぐ。lib.rs の run を参照。
+# macOS は同じアプリを二重に起動しないので、この対処は Windows だけで要る。
+tauri-plugin-single-instance = "2"
+
+# macOS: AppKit が「編集」メニューへ勝手に差し込む項目(作文ツール・自動入力・
+# 音声入力・絵文字と記号)を取り除くために直接触る。menu.rs を参照。
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", features = ["NSApplication", "NSMenu", "NSMenuItem", "NSResponder"] }
+objc2-foundation = { version = "0.3", features = ["NSString"] }

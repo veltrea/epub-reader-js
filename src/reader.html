@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: ipc: http://ipc.localhost; connect-src 'self' blob: data: ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:*; img-src 'self' blob: data:; style-src 'self' blob: 'unsafe-inline'; script-src 'self'; worker-src 'self' blob:; media-src blob: data:; frame-src blob: data:;">
+<title>EPUB Reader</title>
+<link rel="stylesheet" href="styles/app.css">
+<style>
+  /* 見た目の基準は Swift 版 ReaderView.swift。
+     骨格は HStack[ サイドバー(目次/しおり) | 本文+操作パネル | 対訳ペイン ]。
+     目次・しおりは本文に重ねず**横に並べて押しのける**(Swift の NavigationSplitView と同じ)。 */
+  html, body { overflow: hidden; }
+  #stage { display: flex; height: 100%; }
+  #main { position: relative; flex: 1; min-width: 0; }
+  #reader { position: absolute; inset: 0; }
+  foliate-view { display: block; width: 100%; height: 100%; margin: 0 auto; }
+  /* 強制余白モード = ビュー幅を狭めて左右に余白を作る(縦書きでも有効) */
+  #reader.force-margin foliate-view { width: 82%; }
+
+  /* ---- 左のサイドバー(目次 / しおり) --------------------------------------
+     Swift: 目次 260 / しおり 280。地はサイドバーの材質、右に区切り線。 */
+  #side {
+    flex: none; width: 0; overflow: hidden; display: flex; flex-direction: column;
+    background: var(--bg-sidebar); border-inline-end: .5px solid var(--separator);
+    transition: width .2s ease;
+  }
+  #side.toc { width: 260px; }
+  #side.bm { width: 280px; }
+  #side .side-head {
+    flex: none; display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; font-size: 13px; font-weight: 600;
+  }
+  #side .side-head .grow { flex: 1; }
+  #side .side-body { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+  /* 目次: 1 行ごとに区切り線、いま読んでいる章はアクセント色、階層は折りたためる(§9.9) */
+  #toc-list ol { list-style: none; margin: 0; padding: 0; }
+  #toc-list .toc-row {
+    display: flex; align-items: stretch;
+    border-bottom: .5px solid var(--separator);
+  }
+  #toc-list .toc-row:hover { background: var(--fill-quaternary); }
+  /* 開閉の三角。子を持たない項目では場所だけ残して見えなくする(行頭が揃う) */
+  #toc-list .toc-twist {
+    flex: none; width: 22px; padding: 0; margin: 0; border: 0; background: none;
+    color: var(--muted); cursor: pointer; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #toc-list .toc-twist:hover { color: var(--fg); background: var(--fill-tertiary); }
+  #toc-list .toc-twist.leaf { visibility: hidden; cursor: default; }
+  #toc-list .toc-twist svg { transition: transform .15s ease; }
+  #toc-list li.open > .toc-row > .toc-twist svg { transform: rotate(90deg); }
+  #toc-list li:not(.open) > ol { display: none; }
+  #toc-list ol ol .toc-row { padding-inline-start: 16px; }
+  #toc-list ol ol ol .toc-row { padding-inline-start: 32px; }
+  #toc-list a {
+    flex: 1 1 auto; min-width: 0;
+    display: block; padding: 7px 14px 7px 2px; color: var(--fg); text-decoration: none;
+    font-size: 12px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #toc-list a.current { color: var(--accent); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { #toc-list .toc-twist svg { transition: none; } }
+  /* しおり: 左に読了率、右に抜粋と日付 */
+  #bm-add { width: calc(100% - 24px); margin: 0 12px 10px; }
+  .bm-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 14px;
+    border-bottom: .5px solid var(--separator); font-size: 12px; cursor: pointer;
+  }
+  .bm-item:hover { background: var(--fill-quaternary); }
+  .bm-item .bm-pct { flex: none; width: 32px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .bm-item .bm-go { flex: 1; min-width: 0; }
+  .bm-item .bm-ex { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bm-item .bm-date { color: var(--muted); font-size: 10px; }
+  .bm-item .bm-del { flex: none; color: var(--muted); opacity: 0; }
+  .bm-item:hover .bm-del { opacity: 1; }
+
+  /* ---- 左右タップゾーン(端15%。中央は選択のため素通し) -------------------- */
+  .tapzone {
+    position: absolute; top: 48px; bottom: 48px; width: 15%; z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); opacity: 0; transition: opacity .15s; cursor: pointer; user-select: none;
+  }
+  #tap-left { left: 0; }
+  #tap-right { right: 0; }
+  .tapzone:hover { opacity: .5; }
+  .tapzone svg { width: 28px; height: 28px; }
+
+  /* ---- 上下の操作パネル ---------------------------------------------------
+     本文が透けすぎるとアイコンと文字が読み取れないので、thickMaterial 相当の
+     濃さで受ける(漫画の白地・黒ベタの上でも輪郭が残る)。
+     既定は非表示で、ポインタが上端/下端に寄ったときだけ出す。 */
+  .bar {
+    position: absolute; left: 0; right: 0; z-index: 5;
+    background: var(--bar); backdrop-filter: blur(30px) saturate(180%);
+    opacity: 0; pointer-events: none; transition: opacity .18s ease;
+  }
+  .bar.show { opacity: 1; pointer-events: auto; }
+  #topbar {
+    top: 0; display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+    border-bottom: .5px solid var(--separator);
+  }
+  #topbar .grow { flex: 1; }
+  #topbar .title {
+    font-size: 12px; color: var(--fg); max-width: 46%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #btn-back { gap: 3px; font-size: 12px; padding-inline: 2px; }
+  #btn-back svg { width: 13px; height: 13px; }
+  /* 右端の操作アイコン群(Swift: spacing 18・imageScale large) */
+  #topbar .controls { display: flex; align-items: center; gap: 18px; }
+  #topbar .controls button { width: 20px; height: 20px; padding: 0; }
+  #topbar .controls button svg { width: 19px; height: 19px; }
+  #btn-text { font-size: 15px; width: auto !important; letter-spacing: -.04em; }
+  /* 対訳。btn-text と同じテキストボタンの流儀(2 言語が並ぶ形をそのまま記号にする)。 */
+  #btn-translate { font-size: 14px; width: auto !important; letter-spacing: -.02em; }
+  #btn-translate.on { color: var(--accent); }
+
+  #botbar { bottom: 0; border-top: .5px solid var(--separator); }
+  /* 上段: 進捗スライダー + %(Swift: padding h20 v8、% 欄は幅 46 右詰め) */
+  #bb-progress { display: flex; align-items: center; gap: 12px; padding: 8px 20px; }
+  #pct {
+    flex: none; width: 46px; text-align: right; color: var(--muted);
+    font-size: 12px; font-variant-numeric: tabular-nums;
+  }
+  /* 下段: 読み上げ操作(中央) + 状態(右)。padding h20 v10 */
+  #bb-tts {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    padding: 10px 20px; border-top: .5px solid var(--separator);
+  }
+  /* ボタン群は中央に固定する。状態表示を同じ flex に入れると文字数の増減で
+     アイコンの中心がずれるので、絶対配置で重ねてレイアウトから外す。 */
+  #bb-tts .tts-buttons { display: flex; align-items: center; gap: 24px; }
+  #tts-status {
+    position: absolute; right: 20px; max-width: 260px; font-size: 11px; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;
+  }
+  /* 円形の大きなボタン(SF Symbols の *.circle.fill と同じ 40pt) */
+  .tts-btn { position: relative; width: 40px; height: 40px; padding: 0; border-radius: 50%; }
+  .tts-btn svg { width: 40px; height: 40px; display: block; }
+  .tts-btn:hover { background: none; opacity: .78; }
+  #tts-play, #tts-stop { color: var(--accent); }
+  #tts-save { color: var(--tint-teal); }
+  #tts-save-video { color: var(--tint-indigo); }
+  #tts-play .ic-pause { display: none; }
+  #tts-play.playing .ic-play { display: none; }
+  #tts-play.playing .ic-pause { display: block; }
+  /* 自動ページ送り・スリープタイマー: アイコン + 残り時間。
+     残りの枠は停止中も確保する(出たり消えたりで幅が変わると隣のボタンまで動く)。 */
+  .timer-btn { display: flex; align-items: center; gap: 6px; padding: 0; color: var(--muted); }
+  .timer-btn.on { color: var(--accent); }
+  .timer-btn svg { width: 30px; height: 30px; display: block; }
+  .timer-btn .left {
+    width: 34px; text-align: start; font-size: 12px; font-variant-numeric: tabular-nums;
+  }
+  /* 書き出し中はアイコンを薄くしてスピナーを重ねる。ボタンの外形は変えないので隣は動かない。 */
+  .tts-btn.busy { pointer-events: none; }
+  .tts-btn.busy svg { opacity: .25; }
+  .tts-btn.busy::after {
+    content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+    border-top-color: currentColor; animation: tts-spin .8s linear infinite;
+  }
+  @keyframes tts-spin { to { transform: rotate(360deg); } }
+
+  /* ---- 検索シート(画面中央に浮くカード) ----------------------------------- */
+  #search-panel {
+    position: fixed; top: 18%; left: 50%; transform: translateX(-50%);
+    width: min(480px, 76vw); max-height: 64vh; z-index: 30; display: none;
+    flex-direction: column; background: var(--group-bg); border-radius: 12px;
+    box-shadow: var(--shadow-sheet); overflow: hidden;
+  }
+  #search-panel.show { display: flex; }
+  #search-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
+  #search-head .sym { width: 15px; height: 15px; color: var(--muted); flex: none; }
+  #search-input { flex: 1; background: none; padding: 0; font-size: 13px; }
+  #search-input:focus { outline: none; }
+  #search-status { padding: 0 14px 8px; color: var(--muted); font-size: 11px; }
+  #search-results { overflow-y: auto; padding: 0 12px 12px; }
+  .sr-item {
+    display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px;
+    font-size: 12px; line-height: 1.5; cursor: pointer; border-radius: 6px;
+    background: var(--group-row); border-bottom: .5px solid var(--separator);
+  }
+  .sr-item:first-child { border-radius: 6px 6px 0 0; }
+  .sr-item:last-child { border-radius: 0 0 6px 6px; border-bottom: none; }
+  .sr-item:hover { background: var(--fill-tertiary); }
+  .sr-item .sr-sym { flex: none; width: 15px; height: 15px; color: var(--muted); margin-top: 2px; }
+  .sr-item b { color: var(--accent); font-weight: 400; }
+
+  /* ---- 朗読動画 書き出しオーバーレイ -------------------------------------- */
+  #video-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.82);
+    display: flex; align-items: center; justify-content: center; }
+  #video-overlay .vo-inner { width: min(90vw, 1000px); display: flex; flex-direction: column; gap: 12px; }
+  #video-overlay #vo-canvas { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+  #video-overlay .vo-bar { height: 6px; background: rgba(255,255,255,.18); border-radius: 3px; overflow: hidden; }
+  #video-overlay #vo-fill { height: 100%; width: 0; background: var(--accent); transition: width .1s linear; }
+  #video-overlay .vo-row { display: flex; align-items: center; justify-content: space-between; color: #eee; font-size: 12px; }
+
+  /* ---- 対訳ペイン(右) ------------------------------------------------------ */
+  #tr-pane {
+    flex: none; width: 0; display: none; flex-direction: column;
+    background: var(--bg); border-inline-start: .5px solid var(--separator);
+  }
+  #tr-pane.show { display: flex; width: 420px; }
+  #tr-handle { position: absolute; }
+  #tr-head { padding: 10px 14px; border-bottom: .5px solid var(--separator); }
+  #tr-head .tr-row1 { display: flex; align-items: center; gap: 8px; }
+  #tr-head h3 { flex: 1; margin: 0; font-size: 13px; font-weight: 600; }
+  #tr-status { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  #tr-body { flex: 1; overflow-y: auto; padding: 12px 14px; font-size: 12px; }
+  #tr-pane.hide-src .tr-src { display: none; }
+  .tr-row { margin-bottom: 14px; }
+  .tr-src { color: var(--muted); margin-bottom: 3px; }
+  .tr-dst.pending { opacity: .4; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- 左のサイドバー: 目次 / しおり(排他) -->
+  <nav id="side">
+    <div class="side-head">
+      <span class="grow" id="side-title"></span>
+      <button id="side-close" class="icon" title="close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M9.5 4.5v15"/>
+        </svg>
+      </button>
+    </div>
+    <div class="side-body">
+      <button id="bm-add" class="primary" data-i18n="reader.bmAdd" hidden>現在地をしおり</button>
+      <div id="toc-list"></div>
+      <div id="bm-list"></div>
+    </div>
+  </nav>
+
+  <div id="main">
+    <div id="reader"></div>
+
+    <!-- 左右タップゾーン -->
+    <div id="tap-left" class="tapzone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 6l-6 6 6 6"/></svg></div>
+    <div id="tap-right" class="tapzone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6l6 6-6 6"/></svg></div>
+
+    <!-- 上バー: ‹書棚 / 目次 / タイトル / 操作 -->
+    <div id="topbar" class="bar">
+      <button id="btn-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+        <span data-i18n="reader.back">書棚</span>
+      </button>
+      <button id="btn-toc" class="icon" data-i18n-title="reader.toc">
+        <svg class="ic-toc-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <svg class="ic-toc-side" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+      </button>
+      <span class="grow"></span>
+      <span class="title" id="book-title"></span>
+      <span class="grow"></span>
+      <div class="controls">
+        <button id="btn-spread" data-i18n-title="reader.spreadShift" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14" /><path d="M3 5h9v14H3z" fill="currentColor" opacity=".35" stroke="none"/></svg>
+        </button>
+        <button id="btn-search" data-i18n-title="reader.search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.5 20.5"/></svg>
+        </button>
+        <button id="btn-bookmark-add" data-i18n-title="reader.bmAdd">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6.5 4.5h11V20l-5.5-4.2L6.5 20z"/></svg>
+        </button>
+        <button id="btn-writing" data-mode="auto" data-i18n-title="reader.writing.auto">
+          <svg class="ic-wm-v" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M17 4v16M12.5 4v16M8 4v9.5"/><path d="M4 4v6" opacity=".5"/></svg>
+          <svg class="ic-wm-h" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="display:none"><path d="M4 6h16M4 12h16M4 18h9.5"/></svg>
+        </button>
+        <button id="btn-translate" data-i18n-title="reader.translate"><span>あA</span></button>
+        <button id="btn-text" data-i18n-title="reader.textStyle"><span>ぁあ</span></button>
+        <!-- 測定グリッド。設定のデバッグモードを入れている間だけ出る(読者には見せない)。 -->
+        <button id="btn-measure" data-i18n-title="reader.measure" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.5" y="7.5" width="19" height="9" rx="1.5"/><path d="M6.5 7.5v4M10 7.5v2.5M13.5 7.5v4M17 7.5v2.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 下バー: 進捗 / 読み上げ操作 -->
+    <div id="botbar" class="bar">
+      <div id="bb-progress">
+        <input id="progress" type="range" min="0" max="1" step="any" value="0">
+        <span id="pct">0%</span>
+      </div>
+      <div id="bb-tts">
+        <div class="tts-buttons">
+          <button id="tts-play" class="tts-btn" data-i18n-title="reader.play">
+            <svg class="ic-play" viewBox="0 0 24 24">
+              <mask id="m-play"><rect width="24" height="24" fill="#fff"/><path d="M9.9 7.9v8.2l7-4.1z" fill="#000" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/></mask>
+              <circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-play)"/>
+            </svg>
+            <svg class="ic-pause" viewBox="0 0 24 24">
+              <mask id="m-pause"><rect width="24" height="24" fill="#fff"/><path d="M9.8 8.2v7.6M14.2 8.2v7.6" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"/></mask>
+              <circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-pause)"/>
+            </svg>
+          </button>
+          <button id="tts-stop" class="tts-btn" data-i18n-title="reader.stop">
+            <svg viewBox="0 0 24 24">
+              <mask id="m-stop"><rect width="24" height="24" fill="#fff"/><rect x="8.6" y="8.6" width="6.8" height="6.8" rx="1.3" fill="#000"/></mask>
+              <circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-stop)"/>
+            </svg>
+          </button>
+          <button id="tts-save" class="tts-btn" data-i18n-title="reader.saveAudio">
+            <svg viewBox="0 0 24 24">
+              <mask id="m-wave"><rect width="24" height="24" fill="#fff"/><path d="M7.4 10.6v2.8M10.1 8.3v7.4M12.8 6.4v11.2M15.5 9.1v5.8M18.2 11v2" fill="none" stroke="#000" stroke-width="1.35" stroke-linecap="round"/></mask>
+              <circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-wave)"/>
+            </svg>
+          </button>
+          <button id="tts-save-video" class="tts-btn" data-i18n-title="reader.saveVideo">
+            <svg viewBox="0 0 24 24">
+              <mask id="m-film"><rect width="24" height="24" fill="#fff"/>
+                <rect x="5" y="7.3" width="14" height="9.4" rx="1.5" fill="#000"/>
+                <g fill="#fff"><rect x="6.3" y="8.5" width="1.5" height="1.5" rx=".4"/><rect x="6.3" y="11.25" width="1.5" height="1.5" rx=".4"/><rect x="6.3" y="14" width="1.5" height="1.5" rx=".4"/><rect x="16.2" y="8.5" width="1.5" height="1.5" rx=".4"/><rect x="16.2" y="11.25" width="1.5" height="1.5" rx=".4"/><rect x="16.2" y="14" width="1.5" height="1.5" rx=".4"/></g>
+              </mask>
+              <circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-film)"/>
+            </svg>
+          </button>
+          <!-- 自動ページ送り(forward.circle) -->
+          <button id="btn-pager" class="timer-btn" data-i18n-title="pager.title">
+            <svg viewBox="0 0 24 24">
+              <mask id="m-fwd"><rect width="24" height="24" fill="#fff"/>
+                <path d="M7.4 8.4v7.2l5-3.6z" fill="#000"/><path d="M12.6 8.4v7.2l5-3.6z" fill="#000"/></mask>
+              <circle cx="12" cy="12" r="10.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <g class="fwd-fill" style="display:none"><circle cx="12" cy="12" r="10.2" fill="currentColor" mask="url(#m-fwd)"/></g>
+              <g class="fwd-line"><path d="M7.4 8.4v7.2l5-3.6z" fill="currentColor"/><path d="M12.6 8.4v7.2l5-3.6z" fill="currentColor"/></g>
+            </svg>
+            <span class="left" id="pager-left"></span>
+          </button>
+          <!-- スリープタイマー(moon.zzz) -->
+          <button id="btn-sleep" class="timer-btn" data-i18n-title="sleep.title">
+            <svg viewBox="0 0 24 24">
+              <path class="moon" d="M14.6 3.6a8.6 8.6 0 1 0 6 9.8 6.8 6.8 0 0 1-6-9.8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <g fill="currentColor" font-size="5" font-family="-apple-system"><text x="4" y="8">z</text><text x="7.6" y="5.6" font-size="4">z</text></g>
+            </svg>
+            <span class="left" id="sleep-left"></span>
+          </button>
+        </div>
+        <span id="tts-status"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 対訳ペイン(右)。本文の組版を壊さないよう、本文へ割り込ませず横に並べる -->
+  <aside id="tr-pane">
+    <div id="tr-handle"></div>
+    <div id="tr-head">
+      <div class="tr-row1">
+        <h3 data-i18n="reader.translate">対訳</h3>
+        <button id="tr-src-toggle" data-i18n-title="reader.trShowSource">原</button>
+        <button id="tr-font-dec" title="A-">A－</button>
+        <button id="tr-font-inc" title="A+">A＋</button>
+        <button id="tr-refresh" data-i18n-title="reader.trRefresh">⟳</button>
+        <button id="tr-close" title="×">✕</button>
+      </div>
+      <div id="tr-status"></div>
+    </div>
+    <div id="tr-body"></div>
+  </aside>
+</div>
+
+<!-- 検索シート -->
+<nav id="search-panel">
+  <div id="search-head">
+    <svg class="sym" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.5 20.5"/></svg>
+    <input id="search-input" type="text" data-i18n-ph="reader.searchPh">
+    <button id="search-close" data-i18n="settings.close">閉じる</button>
+  </div>
+  <div id="search-status"></div>
+  <div id="search-results"></div>
+</nav>
+
+<div id="ctxmenu" hidden></div>
+<div id="dict-modal"></div>
+<div id="settings-modal"></div>
+
+<script type="module" src="app/reader.js"></script>
+</body>
+</html>
