@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+<!--
+  マニュアルの章の紋（もん）。
+  家紋にならって、線だけで描いた単純な図形にしてある。塗りは使わない。
+  色は currentColor を継承するので、置いた場所の文字色に従う。
+  升目は 24×24。線の太さは 1.6 で統一する。
+-->
+<defs>
+  <!-- 花菱の花びら一枚。環境設定の紋で四方に回して使う。 -->
+  <path id="mon-petal" d="M12 4.3c1.9 1.9 2.9 3.4 2.9 4.7 0 1.3-1 2.3-2.9 3.1-1.9-.8-2.9-1.8-2.9-3.1 0-1.3 1-2.8 2.9-4.7z"/>
+</defs>
+
+<!-- 一 動作環境とインストール — 箱に納める -->
+<symbol id="mon-install" viewBox="0 0 24 24">
+  <path d="M12 3.2v8.6M8.3 8.2 12 11.9l3.7-3.7"/>
+  <path d="M4 13.6v6.4h16v-6.4"/>
+</symbol>
+
+<!-- 二 最初の五分 — 扇（末広） -->
+<symbol id="mon-fan" viewBox="0 0 24 24">
+  <path d="M12 20 3.6 12.9Q12 4.1 20.4 12.9Z"/>
+  <path d="M12 20V9.2M12 20 6.6 12M12 20l5.4-8"/>
+</symbol>
+
+<!-- 三 本を追加する — 和綴じ本に加える印 -->
+<symbol id="mon-book-add" viewBox="0 0 24 24">
+  <path d="M4.5 4.5h15v15h-15z"/>
+  <path d="M15.6 4.5v15"/>
+  <path d="M7.6 12h4.4M9.8 9.8v4.4"/>
+</symbol>
+
+<!-- 四 書棚を使う — 棚に並ぶ背表紙 -->
+<symbol id="mon-shelf" viewBox="0 0 24 24">
+  <path d="M4 4.5h16v15H4z"/>
+  <path d="M4 12.2h16"/>
+  <path d="M7.2 7v3.6M10 7v3.6M12.8 7v3.6M7.2 14.6v3.2M10 14.6v3.2"/>
+</symbol>
+
+<!-- 五 本を読む — 開いた本 -->
+<symbol id="mon-read" viewBox="0 0 24 24">
+  <path d="M12 7.6v11.2"/>
+  <path d="M12 7.6C10.2 6.1 7.6 5.5 4 5.5v11.3c3.6 0 6.2.6 8 2 1.8-1.4 4.4-2 8-2V5.5c-3.6 0-6.2.6-8 2.1z"/>
+</symbol>
+
+<!-- 六 見え方を変える — 障子の格子 -->
+<symbol id="mon-shoji" viewBox="0 0 24 24">
+  <path d="M4 4.5h16v15H4z"/>
+  <path d="M12 4.5v15M4 12h16"/>
+</symbol>
+
+<!-- 七 読み上げ — 声が広がる -->
+<symbol id="mon-voice" viewBox="0 0 24 24">
+  <circle cx="6.6" cy="12" r="1.7"/>
+  <path d="M10.8 8.4a6.2 6.2 0 0 1 0 7.2"/>
+  <path d="M14.2 5.8a10.4 10.4 0 0 1 0 12.4"/>
+  <path d="M17.6 3.2a14.6 14.6 0 0 1 0 17.6"/>
+</symbol>
+
+<!-- 八 読み上げ辞書 — 巻物 -->
+<symbol id="mon-scroll" viewBox="0 0 24 24">
+  <path d="M7 6.6h10v10.8H7z"/>
+  <path d="M5.4 5.4v13.2M18.6 5.4v13.2"/>
+  <path d="M9.6 10.2h4.8M9.6 13.8h3.2"/>
+</symbol>
+
+<!-- 九 自動ページ送り — 右から左へ送る -->
+<symbol id="mon-turn" viewBox="0 0 24 24">
+  <path d="M18.4 5.8 12.2 12l6.2 6.2M12.2 5.8 6 12l6.2 6.2"/>
+</symbol>
+
+<!-- 十 スリープタイマー — 三日月 -->
+<symbol id="mon-moon" viewBox="0 0 24 24">
+  <path d="M18.8 14.9A7.7 7.7 0 1 1 9.1 5.2a6.2 6.2 0 0 0 9.7 9.7z"/>
+</symbol>
+
+<!-- 十一 音声と動画の書き出し — 外へ出す -->
+<symbol id="mon-export" viewBox="0 0 24 24">
+  <path d="M12 3.4V14M8.3 7.1 12 3.4l3.7 3.7"/>
+  <path d="M4.5 13.6v6.4h15v-6.4"/>
+</symbol>
+
+<!-- 十二 書棚を切り替える — 暖簾 -->
+<symbol id="mon-noren" viewBox="0 0 24 24">
+  <path d="M3.4 5.4h17.2"/>
+  <path d="M4.8 5.4v13.2M9.6 5.4v13.2M14.4 5.4v13.2M19.2 5.4v13.2"/>
+</symbol>
+
+<!-- 十三 環境設定 — 花菱 -->
+<symbol id="mon-hanabishi" viewBox="0 0 24 24">
+  <use href="#mon-petal"/>
+  <use href="#mon-petal" transform="rotate(90 12 12)"/>
+  <use href="#mon-petal" transform="rotate(180 12 12)"/>
+  <use href="#mon-petal" transform="rotate(270 12 12)"/>
+</symbol>
+
+<!-- 十四 ショートカット一覧 — 立て札 -->
+<symbol id="mon-fuda" viewBox="0 0 24 24">
+  <path d="M12 3.4 15.8 7v12.6H8.2V7z"/>
+  <path d="M10.2 10.4h3.6M10.2 13.6h3.6M10.2 16.8h2.2"/>
+</symbol>
+
+<!-- 十五 うまくいかないとき — 提灯 -->
+<symbol id="mon-chochin" viewBox="0 0 24 24">
+  <path d="M12 3.4v2.2"/>
+  <path d="M8.2 5.6h7.6M8.2 18.4h7.6"/>
+  <path d="M8.2 5.6c-1.7 2.2-1.7 10.6 0 12.8M15.8 5.6c1.7 2.2 1.7 10.6 0 12.8"/>
+  <path d="M7.2 9.8h9.6M7.2 14.2h9.6"/>
+</symbol>
+</svg>
