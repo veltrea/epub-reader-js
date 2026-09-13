@@ -6,7 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/). The human-facin
 is bumped by hand; the build number in `src-tauri/build-number` is incremented by
 `scripts/package-macos.sh` on every packaged build.
 
-## Unreleased
+## 1.0.0 — 2026-09-13
 
 ### Added
 

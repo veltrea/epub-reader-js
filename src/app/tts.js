@@ -233,7 +233,7 @@ export class TTSController {
   #progressRange = null;  // 読み終わった部分(カラオケ式)の範囲
   #hlCurrent = null;      // 現在文の帯に使っている CFI(annotation の値)
   #hlProgress = null;     // 読み終わった部分の帯に使っている CFI
-  #overlayWired = false;  // draw-annotation の受け口を張ったか
+  #overlayWired = false;  // draw-annotation を受け取る配線を済ませたか
 
   /**
    * 帯の描き方を view に教える(1 回だけ)。

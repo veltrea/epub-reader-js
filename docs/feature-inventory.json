@@ -1,6 +1,6 @@
 {
   "note": "scripts/feature-inventory.mjs が生成する。手で編集しない。 差分が出たら、増えた項目を MANUAL / README に書いてから --write で更新する。 coverage は「記号 × 文書」の星取り図で、本体から機能を消したときに 文書へ説明が残っていないかを逆向きに調べるために使う。",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "menu": {
     "app.settings": "設定…",
     "edit.find": "本文を検索…",

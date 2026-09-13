@@ -1,6 +1,6 @@
 [package]
 name = "epub-reader"
-version = "0.4.0"
+version = "1.0.0"
 description = "Japanese e-book reader with vertical writing and VOICEVOX/AivisSpeech read-aloud (foliate-js + Tauri)"
 authors = ["veltrea <veltrea@outlook.com>"]
 license = "BSD-3-Clause"

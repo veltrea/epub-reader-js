@@ -1,13 +1,13 @@
 # EPUB Reader
 
-A Japanese-first e-book reader for macOS, built on **foliate-js** (layout and rendering)
+A Japanese-first e-book reader for **macOS and Windows**, built on **foliate-js** (layout and rendering)
 and **Rust/Tauri** (shell and I/O). It renders Japanese **vertical writing (vertical-rl)
 with right-to-left paging** without overflow, and reads books aloud through
 **VOICEVOX / AivisSpeech**.
 
 日本語版は [README.ja.md](README.ja.md)。
 
-> **Status**: version 0.4.0, macOS and Windows. Both run on real hardware and are
+> **Status**: version 1.0.0, macOS and Windows. Both run on real hardware and are
 > driven by an automated test suite, but neither has been through a wide public beta.
 > **The Windows build has been checked less thoroughly than the macOS one** — see
 > [Known limitations](#known-limitations).
@@ -15,15 +15,13 @@ with right-to-left paging** without overflow, and reads books aloud through
 
 ## Why
 
-Most readers treat Japanese vertical writing as an afterthought. Here is what that looks
-like in practice: **open a vertical book and the text spills off the left and right of the
-window.** What spilled off is outside the window, so you cannot see it — and **you cannot
-scroll sideways to reach it either.** The reading simply stops there. Every character is
-present in the file; you just cannot get to it.
+**For years I could not find an EPUB reader that set Japanese vertical writing at a quality
+I was happy with.** That search was some years ago, and **I have not looked closely at where
+things stand in 2026.** I had wanted one for a long time, so I built it.
 
-foliate-js cannot spill in the first place. **It decides how much fits on a page, then
-pours the text in** (using the CSS column feature). What does not fit is not pushed off the
-edge — it **goes on the next page**. Vertical or horizontal, the same.
+Rendering goes through foliate-js. **It decides how much fits on a page, then pours the
+text in** (using the CSS column feature). What does not fit **goes on the next page**.
+Vertical or horizontal, the same.
 
 The intended use is **previewing your own manuscript** — seeing an EPUB the way a reader
 will see it. Where a book's data is broken or unusual, this reader errs toward showing

@@ -6,7 +6,7 @@ English: [CHANGELOG.md](CHANGELOG.md)
 版番号は手で上げ、`src-tauri/build-number` のビルド番号は `scripts/package-macos.sh` が
 配布物を作るたびに進めます。
 
-## 未リリース
+## 1.0.0 — 2026-09-13
 
 ### 追加
 

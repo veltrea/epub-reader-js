@@ -23,6 +23,8 @@ English: [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
 | `paginator.js` | 画像だけの面（表紙・口絵）を版面いっぱいに出す。そのセクションだけ段間と寸法上限を外し、`fillPageWithImage()` が画像をページ矩形に合わせる。あわせて、影の DOM に入れる版面の CSS を `<style>` 要素から構築済みスタイルシート（`adoptedStyleSheets`）へ移した。Tauri が CSP に nonce を足すと `<style>` 要素が遮断されるため。印付き 6 箇所。 |
 | `quote-image.js` | 影の DOM の CSS を構築済みスタイルシートへ移した（理由は `paginator.js` と同じ）。印付き 1 箇所。 |
 | `view.js` | このアプリがもう受け付けない文書形式の分岐を、その判定関数ごと削除した。印付き 2 箇所。 |
+| `tts.js` | mark の名前から文の range を読むだけの `rangeOf()` を足した。読み上げ辞書の「この場所だけ」の登録を照合するのに、その文が章の何文字目から始まるかが要る。本家の `setMark()` だとハイライトが動いてしまうため、読み取るだけの関数を別に用意した。印付き 1 箇所。 |
+| `epub.js` | 慣習メタ `<meta name="primary-writing-mode">` を metadata に足した。本家はこれを読まない。本文 CSS の writing-mode が落ちた縦書き本で、向きの最後の手掛かりに使う。印付き 1 箇所。 |
 
 `src/foliate-js/` のそれ以外は本家のままです。
 

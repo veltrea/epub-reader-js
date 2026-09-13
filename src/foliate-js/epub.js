@@ -286,6 +286,7 @@ const getMetadata = opf => {
         rights: one(dc.rights), // NOTE: not in webpub schema
         pageBreakSource: one(properties['pageBreakSource']), // NOTE: not in webpub schema
         // NOTE: not in webpub schema. EPUB 2 以来の慣習メタ(`<meta name="primary-writing-mode">`)。
+        // ※ foliate-js 本家からのローカル改変。本家は primary-writing-mode を読まない。
         // 変換ツールが本文 CSS の writing-mode を落としてしまった縦書き本でも、これだけは
         // 残っていることが多いので、向きの最後の手掛かりとして拾っておく。
         primaryWritingMode: legacyMeta?.['primary-writing-mode'],

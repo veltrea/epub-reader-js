@@ -25,6 +25,8 @@ changes are recorded here and marked in the source with the comment
 | `paginator.js` | Image-only pages (covers, frontispieces) get the full page box: column gap and size caps are dropped for that section, and `fillPageWithImage()` sizes the image to the page rect. The shadow-DOM layout CSS also moved from a `<style>` element to a constructed stylesheet (`adoptedStyleSheets`), because Tauri adds a nonce to the CSP, which blocks `<style>` elements created at runtime. Six marked sites. |
 | `quote-image.js` | Shadow-DOM CSS moved to a constructed stylesheet, for the same reason as `paginator.js`. One marked site. |
 | `view.js` | The branch for a document format this app no longer accepts was deleted, together with the helper that detected it. Two marked sites. |
+| `tts.js` | Added `rangeOf()`, which reads the range of a sentence by its mark name without moving the highlight. The read-aloud dictionary needs the character offset of a sentence within its section, and upstream `setMark()` moves the highlight. One marked site. |
+| `epub.js` | Added the legacy `<meta name="primary-writing-mode">` value to the metadata. Upstream does not read it. It is the last hint of writing direction for vertical books whose stylesheet lost its `writing-mode`. One marked site. |
 
 Everything else in `src/foliate-js/` is upstream and unmodified.
 
