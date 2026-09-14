@@ -231,11 +231,11 @@ pre code { background: none; border: 0; padding: 0; font-size: 1em; }
   background: var(--vermilion);
   border-radius: 2px;
 }
-.brand__name { font-size: 1.02rem; font-weight: 600; letter-spacing: .06em; }
+.brand__name { font-size: 1.02rem; font-weight: 600; letter-spacing: .06em; white-space: nowrap; }
 .brand__latin { font-family: var(--mono); font-size: .7rem; color: var(--ink-faint); letter-spacing: .08em; }
 
 .navlinks { display: flex; align-items: center; gap: 1.15rem; font-family: var(--sans); font-size: .82rem; }
-.navlinks a { text-decoration: none; color: var(--ink-soft); letter-spacing: .06em; }
+.navlinks a { text-decoration: none; color: var(--ink-soft); letter-spacing: .06em; white-space: nowrap; }
 .navlinks a:hover { color: var(--vermilion); }
 .navlinks a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--vermilion); }
 
@@ -730,7 +730,8 @@ dl.deflist dd { margin: .25rem 0 0 .8em; color: var(--ink-soft); font-size: .95r
 .chapnum .mon { width: 1.15rem; height: 1.15rem; }
 
 @media (max-width: 60rem) {
-  .manual { grid-template-columns: 1fr; }
+  /* 1fr だと目次の二段組みが最小幅を押し広げ、狭い画面で横にはみ出す。minmax(0, 1fr) で抑える。 */
+  .manual { grid-template-columns: minmax(0, 1fr); }
   .toc { position: static; border-right: 0; border-bottom: 1px solid var(--rule); padding: 0 0 1.2rem; }
   .toc ol { columns: 2; column-gap: 1.5rem; }
 }
@@ -835,3 +836,27 @@ dl.deflist dd { margin: .25rem 0 0 .8em; color: var(--ink-soft); font-size: .95r
 .skip-link:focus { left: 0; }
 
 :focus-visible { outline: 2px solid var(--vermilion); outline-offset: 3px; }
+
+/* ------------------------------------------------------------------ *
+ * 英語版のページ（en/ の下）
+ *
+ * 欧文の書体を先に置く。和文の書体を先に置くと、欧文まで和文書体の
+ * 欧文字形で組まれる。和文用に広げた字間は、欧文では間延びするので戻す。
+ * 扉の縦組みの見本（.tategaki）は日本語のまま置くので、lang="ja" を付けてある。
+ * ------------------------------------------------------------------ */
+
+:root:lang(en) {
+  --serif: Georgia, "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", serif;
+  --sans:  "Helvetica Neue", Arial, "Hiragino Sans", "Yu Gothic Medium", "Noto Sans JP", sans-serif;
+}
+:lang(en) :is(h1, h2, h3, h4, .brand__name, .navlinks a, .toc a, .colophon h3) { letter-spacing: normal; }
+
+/* 番号は漢数字ではなく算用数字にする。図の番号も「図一」ではなく「Fig. 1」にする。 */
+:lang(en) .toc a::before { content: counter(toc); }
+:lang(en) .steps > li::before { content: counter(step); }
+:lang(en) figure figcaption::before { content: "Fig. " counter(fig); }
+
+/* 狭い画面では、目次を二段に組むと一段の幅が足りず項目名が細かく折り返す。一段にする。 */
+@media (max-width: 34rem) {
+  .toc ol { columns: 1; }
+}

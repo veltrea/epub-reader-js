@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPUB Reader (epub-reader) — Japanese books that simply read well</title>
+<meta name="description" content="A macOS and Windows reader that shows Japanese vertical EPUBs in a state that simply reads well, and reads them aloud with VOICEVOX / AivisSpeech. It also exports each chapter as audio and as a narrated video.">
+<meta property="og:title" content="EPUB Reader (epub-reader)">
+<meta property="og:description" content="An EPUB reader for macOS and Windows that puts “displays without trouble” ahead of strict correctness. Read-aloud, audio export and narrated video included.">
+<meta property="og:type" content="website">
+<link rel="alternate" hreflang="ja" href="../">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <a class="brand" href="./">
+      <span class="brand__mark" lang="ja">縦</span>
+      <span class="brand__name">EPUB Reader</span>
+      <span class="brand__latin">epub-reader</span>
+    </a>
+    <nav class="navlinks" aria-label="Site">
+      <a href="#features" class="is-optional">Features</a>
+      <a href="#download" class="is-optional">Download</a>
+      <a href="manual.html">Manual</a>
+      <a href="https://github.com/veltrea/epub-reader-js" class="is-optional">GitHub</a>
+      <a href="../" hreflang="ja" lang="ja">日本語</a>
+      <a href="https://github.com/veltrea/epub-reader-js/releases" class="navlinks__cta">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero -->
+  <div class="hero wrap">
+    <div class="hero__grid">
+      <div>
+        <p class="hero__eyebrow rise">EPUB reader for macOS and Windows</p>
+        <h1 class="rise">Not strict correctness,<br>but <span class="accent">books that simply read well</span>.</h1>
+        <p class="hero__lede rise">
+          Japanese vertical EPUBs have long been made with few reference implementations to check against.
+          This reader quietly absorbs rough markup and brings the book to a readable form,
+          yet shows exactly what the book specifies when you want to know. Read-aloud, audio export, narrated video and translation are all included.
+        </p>
+        <div class="actions rise">
+          <a class="btn" href="https://github.com/veltrea/epub-reader-js/releases">Download (Releases)</a>
+          <a class="btn btn--ghost" href="manual.html">Read the manual</a>
+        </div>
+        <p class="hero__meta rise">
+          <span>macOS (Apple Silicon)</span><span>Windows 11</span><span>BSD-3-Clause</span><span>Version 1.0.0</span>
+        </p>
+      </div>
+
+      <!-- Set vertically for real, in Japanese. The highlighted line stands for the sentence being read aloud. -->
+      <div class="tategaki" lang="ja" aria-hidden="true">
+        　本を開くと、右から左へ。<br>
+        　表紙は面いっぱいに。<br>
+        　<b>読んでいる行だけが光る。</b><br>
+        　文字の大きさは、その日の眼に。<br>
+        　読み終えたら、パソコンごと眠る。
+      </div>
+    </div>
+  </div>
+
+  <!-- Two render modes -->
+  <section id="modes" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">1</div>
+        <div>
+          <h2>Two render modes</h2>
+          <p>Some days you want the book’s rough edges smoothed over so you can read; other days you want to see those rough edges. One app switches between both.</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <article class="card">
+          <span class="card__tag">Default</span>
+          <h3>Reading-friendly (friendly)</h3>
+          <p>Absorbs rough markup on the EPUB side and brings the book close to how it is expected to look.</p>
+          <ul class="feature-list">
+            <li>Fits images inside the frame</li>
+            <li>Restores the proportions of SVG covers squashed by <code>preserveAspectRatio="none"</code></li>
+            <li>Fixes misaligned hanging indents</li>
+            <li>Rescues table-of-contents entries whose links are broken</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <span class="card__tag">The other</span>
+          <h3>As authored (raw)</h3>
+          <p>Turns the corrections above off and shows what the engine draws from exactly what the EPUB specifies. Distorted covers and markup that has no effect appear as they are.</p>
+          <ul class="feature-list">
+            <li>Check the book without corrections</li>
+            <li>Colours, text size, line spacing and custom CSS still apply in raw (they are reading settings, not an interpretation of the EPUB)</li>
+          </ul>
+        </article>
+      </div>
+
+      <figure style="margin-top:2rem">
+        <a href="../assets/img/reader-text.webp" title="Open at full size"><img src="../assets/img/reader-text.webp" width="1280" height="820" loading="lazy"
+             alt="The reader, with vertical text flowing from right to left"></a>
+        <figcaption><b>While you read, the screen shows only the text.</b> The toolbars appear only when you move the mouse to the top or bottom edge. Ruby and tate-chū-yoko (short horizontal runs inside vertical text) are set as they are.</figcaption>
+      </figure>
+
+      <p style="margin-top:1.4rem;color:var(--ink-soft);font-size:.92rem">
+        In both modes, a book that says it is vertical but ends up laid out horizontally is set vertically, and image-only pages such as covers and frontispieces are enlarged to fill the screen.
+      </p>
+
+      <div class="note">
+        <strong>As a preview you can hand to writers.</strong>
+        For writers who are not familiar with EPUB technology, even the position of a single page break can be a worry.
+        A tool that lets you say “this is a preview; the final look varies by platform” makes the conversation much easier.
+      </div>
+    </div>
+  </section>
+
+  <!-- Read aloud -->
+  <section id="features" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">2</div>
+        <div>
+          <h2>Read aloud</h2>
+          <p>The best way to check a manuscript turned out to be pairing it with text-to-speech. That is why read-aloud has had a lot of work.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <h3>High-quality voices, from any position</h3>
+          <ul class="feature-list">
+            <li>Synthesized speech with <strong>VOICEVOX / AivisSpeech</strong>. If the engine is not running, the app tries to start it</li>
+            <li>Adjust the voice, the speed and the <strong>length of pauses</strong> at line breaks and punctuation</li>
+            <li>Start reading from wherever you <strong>double-click</strong> in the text</li>
+            <li><kbd>Space</kbd> plays and pauses; <kbd>Enter</kbd> / <kbd>Esc</kbd> stops</li>
+            <li>Pages turn along with the speech; the sentence being read is highlighted, and the part already spoken fills in karaoke style</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>A reading dictionary with layer priorities</h3>
+          <p>
+            In Japanese TTS, the fact that <strong>short words are matched first</strong> causes trouble.
+            Register a character named 明 to be read <strong>Akira</strong>,
+            and 明日 (tomorrow), 明確 (clear), 明暗 (light and dark) and 説明 (explanation) all turn into Akira as well.
+          </p>
+          <p>
+            The speech engines’ user dictionaries have no way to prevent this,
+            so the app has its own reading dictionary in which each word has a <strong>priority (layers 1 to 10)</strong>.
+            Replacements go from the highest layer down, and parts already replaced are left alone by lower layers.
+            Put <strong>the name on a low layer and the compound words that appear in that book on a high layer</strong>,
+            and the compound words are settled first, so only a standalone 明 is read differently.
+            Regular expressions (patterns such as <code>第(\d+)話</code>) are supported too.
+          </p>
+          <p>
+            The dictionary is split into <strong>“All books” and “This book only”</strong>.
+            A reading used only in one work, such as a character’s name, can be registered without carrying it into other books.
+            Adding an entry and browsing saved entries happen in separate screens, so <strong>you never have to go through a long list just to add one word</strong>.
+            If you try to register a word you registered before, the screen opens with its saved reading.
+          </p>
+        </div>
+      </div>
+
+      <figure style="margin-top:2rem">
+        <a href="../assets/img/dictionary-list.webp" title="Open at full size"><img src="../assets/img/dictionary-list.webp" width="1280" height="820" loading="lazy"
+             alt="The reading dictionary, with 明日, 明確, 明暗 and 説明 on layer 8, 明 on layer 2, and the converted text in the test box"></a>
+        <figcaption><b>You can try out how layers work on the spot.</b> With the compound words on layer 8 and <b>明→アキラ</b> on layer 2, typing 「明は明日、明暗を明確に説明した。」 gives 「<b>アキラ</b>は<b>アシタ</b>、<b>メイアン</b>を<b>メイカク</b>に<b>セツメイ</b>した。」.</figcaption>
+      </figure>
+
+      <div class="note">
+        <strong>An AI can take over the tedious registering.</strong>
+        The dictionary <strong>can be operated from outside</strong>, not only from the screen:
+        AI agents can use the bundled test bus (a way to send commands) through MCP. Collect the words containing that character from the text, load them in,
+        and <strong>check the text that will be sent to read-aloud</strong> with <code>applyRules</code> —
+        because this round trip can run on its own, building a dictionary for a whole book is less work than you might expect.
+        The test bus is turned off in the released app, so launch the app with an environment variable to use it.
+        The steps are in <a href="manual.html#dictionary">chapter 8 of the manual</a>.
+      </div>
+    </div>
+  </section>
+
+  <!-- Export -->
+  <section id="export" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">3</div>
+        <div>
+          <h2>Export</h2>
+          <p>Not just for reading: take it with you. No screen recorder or video editor is needed.</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <article class="card">
+          <h3>Audio per chapter (WAV)</h3>
+          <p>
+            Listen to your own novel on the train, or check a work your group is making in spare moments.
+            The chapter you are reading is turned into a single audio file.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Narrated video (MP4)</h3>
+          <p>
+            Exports a narrated video combining the look of the text with the spoken audio. Vertical or horizontal layout is chosen automatically.
+            Publishing your own work as a video becomes much easier.
+          </p>
+        </article>
+      </div>
+      <p style="margin-top:1.4rem;color:var(--ink-soft);font-size:.92rem">
+        Both audio and video are exported entirely within the app. You do not need to install anything else.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tools for reading -->
+  <section id="reading" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">4</div>
+        <div>
+          <h2>Tools for keeping on reading</h2>
+          <p>Reading without lifting a hand, falling asleep while listening: small tools fitted to how you read.</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <article class="card">
+          <h3>Auto page turn</h3>
+          <p>Turns to the next page every 10 to 90 seconds, or any number from 1 to 3600 seconds. It does not turn while reading aloud, and stops by itself at the end of the book.</p>
+        </article>
+        <article class="card">
+          <h3>Sleep timer</h3>
+          <p>Stops read-aloud after 15 to 120 minutes. When it expires it can also <strong>put the computer to sleep</strong> or <strong>shut it down</strong> (shutdown waits 30 seconds, so you can cancel it with “Cancel Timer” if you are still awake).</p>
+        </article>
+        <article class="card">
+          <h3>Bookmarks and search</h3>
+          <p>Select a sentence in the text and right-click, and that sentence becomes a bookmark listed as it is. Search the text with <kbd>⌘F</kbd>.</p>
+        </article>
+        <article class="card">
+          <h3>Translation</h3>
+          <p>Connects to an OpenAI-compatible API (LM Studio or Ollama on your machine, or a cloud service) and shows a translation of the paragraphs on screen beside the original. The layout of the text stays as it is.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Library -->
+  <section id="shelf" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">5</div>
+        <div>
+          <h2>Library</h2>
+          <p>So you can find books as your collection grows — and so books you do not want seen are reliably never shown.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <h3>Arrange, group, find</h3>
+          <ul class="feature-list">
+            <li><strong>Drag and drop</strong> books or folders onto the window (subfolders are searched and everything is added at once). Besides EPUB, it opens CBZ, FB2, MOBI, AZW3 and more</li>
+            <li>A sidebar with <strong>collections</strong> (can be nested), <strong>favourites</strong> and unfiled books</li>
+            <li>Filter and sort by title, author or publisher</li>
+            <li><strong>By author view</strong> with a Japanese kana index (you can correct the reading of an author’s name by hand)</li>
+            <li>A “Continue Reading” row so you can pick up from the last book you read</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Switch the whole shelf</h3>
+          <p>
+            A collection can include books you would not show others: data you hold for work, books you would rather your family did not see, books that have nothing to do with the person you are sharing your screen with.
+            So <strong>you can have several shelves</strong>.
+          </p>
+          <p>
+            It is not a “hide” feature because with hiding, missing a single path — forgetting to turn it back on, covers left in the cache — is enough to leak.
+            With a design that switches what is read, anything not read cannot be shown. Deleting a shelf keeps its data in <code>Deleted/</code>.
+          </p>
+        </div>
+      </div>
+
+      <figure style="margin-top:2rem">
+        <a href="../assets/img/shelf-grid.webp" title="Open at full size"><img src="../assets/img/shelf-grid.webp" width="1280" height="820" loading="lazy"
+             alt="The library with covers in a grid, a sidebar on the left and a Continue Reading row at the top"></a>
+        <figcaption><b>Library.</b> Find books by collection, favourites, or the kana-ordered by-author view. The top row is always “Continue Reading”. This screenshot was taken after switching to a shelf that holds only books that can be shown publicly.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- For developers -->
+  <section id="developer" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">6</div>
+        <div>
+          <h2>For developers</h2>
+          <p>From here on, this is about how the app itself is built. It includes a way to find mismatches between the manual and the code by machine, and a way to test a GUI app automatically without clicking on screen coordinates.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <h3>Finding mismatches between the manual and the code by machine</h3>
+          <p>
+            Documentation may be right when written, but when only the code moves on, it silently becomes wrong.
+            People cannot prevent that by reading, so <strong>it is checked by machine</strong>.
+          </p>
+          <ul class="feature-list">
+            <li><strong>Extracting the list of features from the code</strong> — menu ids, settings keys, test bus commands and supported file extensions
+              are already declared in the code. They are extracted with grep instead of guessed, and compared against the records.
+              <strong>Whatever has been added is exactly what needs documenting</strong></li>
+            <li><strong>Finding missing explanations in reverse</strong> — ids are attached to features in the code, and the same ids are embedded
+              in the manual as invisible markers. Comparing the two sets reveals both features with no explanation
+              and explanations with no feature behind them</li>
+            <li><strong>Forbidding UI text written directly in the code</strong> — writing Japanese directly into the code makes the check fail.
+              So does a mismatch in the number of keys between the Japanese and English language files</li>
+          </ul>
+        </div>
+        <div>
+          <h3>E2E tests that do not rely on computer use</h3>
+          <ul class="feature-list">
+            <li><strong>No coordinate clicks</strong> — the screen is driven by sending commands to a command bus inside the app</li>
+            <li><strong>In-app command bus</strong> — everything down to bulk-loading and checking the reading dictionary can be driven by commands from outside.
+              However, <strong>it is closed in the released app</strong>. Commands run with the app’s permissions,
+              so leaving the port open would let any local process that grabbed the port first
+              take screenshots or write files.
+              It works only in debug builds, or when the app is launched with <code>EPUB_READER_TESTBUS=1</code></li>
+            <li><strong>Assertions in numbers</strong> — not “it looks off” but “it overflows the frame to the right by 12.3pt”</li>
+            <li>Each test finishes in a few seconds</li>
+          </ul>
+          <p style="font-size:.9rem;color:var(--ink-soft)">
+            How to use it is in the “Test bus” section of <a href="https://github.com/veltrea/epub-reader-js/blob/main/docs/DEVELOPMENT.md">DEVELOPMENT.md</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section id="download" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">7</div>
+        <div>
+          <h2>Download</h2>
+          <p>The built app is on GitHub Releases: a macOS version (DMG and ZIP, for Apple Silicon) and a Windows version (ZIP).</p>
+        </div>
+      </div>
+
+      <div class="prose">
+        <h3>macOS</h3>
+        <p>
+          Open the DMG and drag <code>epub-reader.app</code> to <code>Applications</code>.
+          The app has an <strong>ad-hoc signature</strong>, without an Apple Developer account ($99 a year), so the first launch needs one step past the macOS warning.
+          Once allowed, it keeps launching normally.
+        </p>
+        <ol class="steps">
+          <li>System Settings → Privacy &amp; Security → “Open Anyway” (on macOS 15 and later, right-click → “Open” no longer works)</li>
+          <li>If you prefer a command:</li>
+        </ol>
+<pre><code>xattr -dr com.apple.quarantine /Applications/epub-reader.app</code></pre>
+        <p>To use it on an Intel Mac, build it yourself from source.</p>
+        <h3>Windows 11</h3>
+        <p>
+          The ZIP contains a single <code>epub-reader.exe</code>. Put it anywhere and run it.
+          The first time, “Windows protected your PC” may appear. Press “More info”, then “Run anyway”.
+        </p>
+        <div class="note note--warn">
+          <strong>The app is neither notarized by Apple nor code-signed for Windows.</strong>
+          If you need that, fork the project and sign it with your own certificate.
+        </div>
+        <div class="actions">
+          <a class="btn" href="https://github.com/veltrea/epub-reader-js/releases">Open Releases</a>
+          <a class="btn btn--ghost" href="manual.html#install">Detailed install steps</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Status -->
+  <section id="status" class="reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">8</div>
+        <div>
+          <h2>State of this software</h2>
+        </div>
+      </div>
+      <div class="prose">
+        <p>
+          It was made for personal use, and some parts are not thoroughly tested.
+          It is published on the view that not everything has to be finished to product quality before it can be released.
+          The basic features alone should be quite usable.
+        </p>
+        <p>
+          The Windows version has been checked less thoroughly than the macOS version. Importing by drag and drop, the file picker, sleep and shut down, and starting the speech engine automatically have not yet been tried on a real Windows machine.
+          There is no Linux version.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="colophon">
+  <div class="wrap">
+    <div class="colophon__grid">
+      <div>
+        <h3>Get it</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/releases">Releases (built app)</a></li>
+          <li><a href="https://github.com/veltrea/epub-reader-js">Source code (GitHub)</a></li>
+          <li><a href="manual.html">Manual</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Speech engines</h3>
+        <ul>
+          <li><a href="https://voicevox.hiroshiba.jp/">VOICEVOX</a></li>
+          <li><a href="https://aivis-project.com/">AivisSpeech</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>License</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/blob/main/LICENSE">BSD-3-Clause</a></li>
+          <li><a href="https://github.com/veltrea/epub-reader-js/blob/main/THIRD_PARTY_LICENSES.md">Bundled third-party code</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/issues">Feel free to open an issue</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon__seal">
+      <span>EPUB Reader — epub-reader</span>
+      <span>Bundles foliate-js / zip.js / fflate</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>

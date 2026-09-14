@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — EPUB Reader (epub-reader)</title>
+<meta name="description" content="How to use epub-reader on macOS and Windows 11: installing, adding books, the library, changing how books look, read-aloud and the reading dictionary, translation, auto page turn, the sleep timer, exporting audio and narrated video, and keyboard shortcuts.">
+<link rel="alternate" hreflang="ja" href="../manual.html">
+<link rel="alternate" hreflang="en" href="manual.html">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<!-- Chapter emblems (mon) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+<!--
+  マニュアルの章の紋（もん）。
+  家紋にならって、線だけで描いた単純な図形にしてある。塗りは使わない。
+  色は currentColor を継承するので、置いた場所の文字色に従う。
+  升目は 24×24。線の太さは 1.6 で統一する。
+-->
+<defs>
+  <!-- 花菱の花びら一枚。設定の紋で四方に回して使う。 -->
+  <path id="mon-petal" d="M12 4.3c1.9 1.9 2.9 3.4 2.9 4.7 0 1.3-1 2.3-2.9 3.1-1.9-.8-2.9-1.8-2.9-3.1 0-1.3 1-2.8 2.9-4.7z"/>
+</defs>
+
+<!-- 動作環境とインストール — 箱に納める -->
+<symbol id="mon-install" viewBox="0 0 24 24">
+  <path d="M12 3.2v8.6M8.3 8.2 12 11.9l3.7-3.7"/>
+  <path d="M4 13.6v6.4h16v-6.4"/>
+</symbol>
+
+<!-- 最初の五分 — 扇（末広） -->
+<symbol id="mon-fan" viewBox="0 0 24 24">
+  <path d="M12 20 3.6 12.9Q12 4.1 20.4 12.9Z"/>
+  <path d="M12 20V9.2M12 20 6.6 12M12 20l5.4-8"/>
+</symbol>
+
+<!-- 本を追加する — 和綴じ本に加える印 -->
+<symbol id="mon-book-add" viewBox="0 0 24 24">
+  <path d="M4.5 4.5h15v15h-15z"/>
+  <path d="M15.6 4.5v15"/>
+  <path d="M7.6 12h4.4M9.8 9.8v4.4"/>
+</symbol>
+
+<!-- 書棚を使う — 棚に並ぶ背表紙 -->
+<symbol id="mon-shelf" viewBox="0 0 24 24">
+  <path d="M4 4.5h16v15H4z"/>
+  <path d="M4 12.2h16"/>
+  <path d="M7.2 7v3.6M10 7v3.6M12.8 7v3.6M7.2 14.6v3.2M10 14.6v3.2"/>
+</symbol>
+
+<!-- 本を読む — 開いた本 -->
+<symbol id="mon-read" viewBox="0 0 24 24">
+  <path d="M12 7.6v11.2"/>
+  <path d="M12 7.6C10.2 6.1 7.6 5.5 4 5.5v11.3c3.6 0 6.2.6 8 2 1.8-1.4 4.4-2 8-2V5.5c-3.6 0-6.2.6-8 2.1z"/>
+</symbol>
+
+<!-- 見え方を変える — 障子の格子 -->
+<symbol id="mon-shoji" viewBox="0 0 24 24">
+  <path d="M4 4.5h16v15H4z"/>
+  <path d="M12 4.5v15M4 12h16"/>
+</symbol>
+
+<!-- 読み上げ — 声が広がる -->
+<symbol id="mon-voice" viewBox="0 0 24 24">
+  <circle cx="6.6" cy="12" r="1.7"/>
+  <path d="M10.8 8.4a6.2 6.2 0 0 1 0 7.2"/>
+  <path d="M14.2 5.8a10.4 10.4 0 0 1 0 12.4"/>
+  <path d="M17.6 3.2a14.6 14.6 0 0 1 0 17.6"/>
+</symbol>
+
+<!-- 読み上げ辞書 — 巻物 -->
+<symbol id="mon-scroll" viewBox="0 0 24 24">
+  <path d="M7 6.6h10v10.8H7z"/>
+  <path d="M5.4 5.4v13.2M18.6 5.4v13.2"/>
+  <path d="M9.6 10.2h4.8M9.6 13.8h3.2"/>
+</symbol>
+
+<!-- 対訳 — 原文と訳文を二枚並べる -->
+<symbol id="mon-pair" viewBox="0 0 24 24">
+  <path d="M3.8 5.5h7v13h-7zM13.2 5.5h7v13h-7z"/>
+  <path d="M5.8 9h3M5.8 12h3M15.2 9h3M15.2 12h3"/>
+</symbol>
+
+<!-- 自動ページ送り — 右から左へ送る -->
+<symbol id="mon-turn" viewBox="0 0 24 24">
+  <path d="M18.4 5.8 12.2 12l6.2 6.2M12.2 5.8 6 12l6.2 6.2"/>
+</symbol>
+
+<!-- スリープタイマー — 三日月 -->
+<symbol id="mon-moon" viewBox="0 0 24 24">
+  <path d="M18.8 14.9A7.7 7.7 0 1 1 9.1 5.2a6.2 6.2 0 0 0 9.7 9.7z"/>
+</symbol>
+
+<!-- 音声と動画の書き出し — 外へ出す -->
+<symbol id="mon-export" viewBox="0 0 24 24">
+  <path d="M12 3.4V14M8.3 7.1 12 3.4l3.7 3.7"/>
+  <path d="M4.5 13.6v6.4h15v-6.4"/>
+</symbol>
+
+<!-- 書棚を切り替える — 暖簾 -->
+<symbol id="mon-noren" viewBox="0 0 24 24">
+  <path d="M3.4 5.4h17.2"/>
+  <path d="M4.8 5.4v13.2M9.6 5.4v13.2M14.4 5.4v13.2M19.2 5.4v13.2"/>
+</symbol>
+
+<!-- 設定 — 花菱 -->
+<symbol id="mon-hanabishi" viewBox="0 0 24 24">
+  <use href="#mon-petal"/>
+  <use href="#mon-petal" transform="rotate(90 12 12)"/>
+  <use href="#mon-petal" transform="rotate(180 12 12)"/>
+  <use href="#mon-petal" transform="rotate(270 12 12)"/>
+</symbol>
+
+<!-- ショートカット一覧 — 立て札 -->
+<symbol id="mon-fuda" viewBox="0 0 24 24">
+  <path d="M12 3.4 15.8 7v12.6H8.2V7z"/>
+  <path d="M10.2 10.4h3.6M10.2 13.6h3.6M10.2 16.8h2.2"/>
+</symbol>
+
+<!-- うまくいかないとき — 提灯 -->
+<symbol id="mon-chochin" viewBox="0 0 24 24">
+  <path d="M12 3.4v2.2"/>
+  <path d="M8.2 5.6h7.6M8.2 18.4h7.6"/>
+  <path d="M8.2 5.6c-1.7 2.2-1.7 10.6 0 12.8M15.8 5.6c1.7 2.2 1.7 10.6 0 12.8"/>
+  <path d="M7.2 9.8h9.6M7.2 14.2h9.6"/>
+</symbol>
+</svg>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <a class="brand" href="./">
+      <span class="brand__mark" lang="ja">縦</span>
+      <span class="brand__name">EPUB Reader</span>
+      <span class="brand__latin">epub-reader</span>
+    </a>
+    <nav class="navlinks" aria-label="Site">
+      <a href="./" class="is-optional">Home</a>
+      <a href="manual.html" aria-current="page">Manual</a>
+      <a href="https://github.com/veltrea/epub-reader-js" class="is-optional">GitHub</a>
+      <a href="../manual.html" hreflang="ja" lang="ja">日本語</a>
+      <a href="https://github.com/veltrea/epub-reader-js/releases" class="navlinks__cta">Download</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap manual" id="main">
+
+  <!-- Table of contents -->
+  <nav class="toc" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#install"><svg class="mon" aria-hidden="true"><use href="#mon-install"/></svg>Requirements and installation</a></li>
+      <li><a href="#quickstart"><svg class="mon" aria-hidden="true"><use href="#mon-fan"/></svg>The first five minutes</a></li>
+      <li><a href="#add"><svg class="mon" aria-hidden="true"><use href="#mon-book-add"/></svg>Adding books</a></li>
+      <li><a href="#shelf"><svg class="mon" aria-hidden="true"><use href="#mon-shelf"/></svg>Using the library</a></li>
+      <li><a href="#read"><svg class="mon" aria-hidden="true"><use href="#mon-read"/></svg>Reading a book</a></li>
+      <li><a href="#display"><svg class="mon" aria-hidden="true"><use href="#mon-shoji"/></svg>Changing how books look</a></li>
+      <li><a href="#speech"><svg class="mon" aria-hidden="true"><use href="#mon-voice"/></svg>Read aloud</a></li>
+      <li><a href="#dictionary"><svg class="mon" aria-hidden="true"><use href="#mon-scroll"/></svg>Reading dictionary</a></li>
+      <li><a href="#translation"><svg class="mon" aria-hidden="true"><use href="#mon-pair"/></svg>Translation</a></li>
+      <li><a href="#autopager"><svg class="mon" aria-hidden="true"><use href="#mon-turn"/></svg>Auto page turn</a></li>
+      <li><a href="#sleep"><svg class="mon" aria-hidden="true"><use href="#mon-moon"/></svg>Sleep timer</a></li>
+      <li><a href="#export"><svg class="mon" aria-hidden="true"><use href="#mon-export"/></svg>Exporting audio and video</a></li>
+      <li><a href="#profiles"><svg class="mon" aria-hidden="true"><use href="#mon-noren"/></svg>Switching shelves</a></li>
+      <li><a href="#settings"><svg class="mon" aria-hidden="true"><use href="#mon-hanabishi"/></svg>Settings</a></li>
+      <li><a href="#shortcuts"><svg class="mon" aria-hidden="true"><use href="#mon-fuda"/></svg>Keyboard shortcuts</a></li>
+      <li><a href="#trouble"><svg class="mon" aria-hidden="true"><use href="#mon-chochin"/></svg>Troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <div class="manual__body">
+
+    <div class="sec-head" style="margin-bottom:2.5rem">
+      <div class="sec-num" lang="ja">手引</div>
+      <div>
+        <h2>Manual</h2>
+        <p>From installation to export, in the order you would try things while reading along. Every screenshot is of the actual app, taken on macOS with the Japanese interface. Windows shows the same items, with the menu bar inside the window instead of at the top of the screen. The English interface has the same items in the same places, with the English names used in this manual.</p>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section id="install">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-install"/></svg>1</span>Requirements and installation</h3>
+
+      <dl class="deflist">
+        <dt>Requirements</dt>
+        <dd>
+          macOS and Windows 11 (64-bit). There is no Linux version.
+          The macOS release is built for <strong>Apple Silicon</strong>. On an Intel Mac, build it yourself from source.
+          Windows needs WebView2, which comes with Windows 11.
+        </dd>
+        <dt>Files it opens</dt>
+        <dd>
+          EPUB (reflowable and fixed-layout), CBZ, FB2 / FBZ, MOBI / AZW / AZW3 / KF8.
+          Any other format is refused. Reflowable EPUB is where the effort has gone.
+        </dd>
+        <dt>Needed for read-aloud</dt>
+        <dd><a href="https://voicevox.hiroshiba.jp/">VOICEVOX</a> or <a href="https://aivis-project.com/">AivisSpeech</a>. Neither is bundled, so install one yourself. Not needed if you do not use read-aloud.</dd>
+        <dt>Needed for translation</dt>
+        <dd>An OpenAI-compatible API: a server on your own machine (<a href="https://lmstudio.ai/">LM Studio</a>, <a href="https://ollama.com/">Ollama</a>) or a cloud service. Not needed if you do not use translation.</dd>
+      </dl>
+
+      <h4>Installing on macOS</h4>
+      <ol class="steps">
+        <li>From <a href="https://github.com/veltrea/epub-reader-js/releases">Releases</a>, download the file whose name ends in <code>-macos.dmg</code> or <code>-macos.zip</code>.</li>
+        <li>For the DMG, open it and drag <code>epub-reader.app</code> to <code>Applications</code>. For the ZIP, unpack it and move the app into <code>/Applications</code>.</li>
+        <li>The first time, macOS refuses to open it because the developer cannot be verified. Go to <strong>System Settings → Privacy &amp; Security → “Open Anyway”</strong>.</li>
+      </ol>
+
+      <p>
+        On macOS 15 and later, right-click → “Open” no longer gets past this check.
+        If you prefer a command, removing the attribute also works:
+      </p>
+<pre><code>xattr -dr com.apple.quarantine /Applications/epub-reader.app</code></pre>
+
+      <div class="note">
+        <strong>Why this step is needed.</strong>
+        The app is distributed with an ad-hoc signature, without an Apple Developer account ($99 a year), and it is not notarized by Apple.
+        The signature of the released app does not change, so once you allow it, it keeps launching normally.
+        A copy you build yourself from source does not trigger the check.
+      </div>
+
+      <h4>Installing on Windows</h4>
+      <ol class="steps">
+        <li>From <a href="https://github.com/veltrea/epub-reader-js/releases">Releases</a>, download the file whose name ends in <code>-windows.zip</code>.</li>
+        <li>It contains a single <code>epub-reader.exe</code>. It is not an installer: put it in any folder and run it.</li>
+        <li>The first time, a blue “Windows protected your PC” screen may appear. <strong>Press “More info”, and a “Run anyway” button appears</strong>; use that.</li>
+      </ol>
+
+      <div class="note note--warn">
+        <strong>The Windows version has been checked less thoroughly than the macOS version.</strong>
+        Importing by drag and drop, the file and folder pickers, sleep and shut down, and starting the speech engine automatically have not yet been tried on a real Windows machine.
+        Some of the menu layout still follows macOS conventions.
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="quickstart">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-fan"/></svg>2</span>The first five minutes</h3>
+
+      <p>Leave the detailed settings for later and get to the point where you can read.</p>
+
+      <ol class="steps">
+        <li>Launch the app. The first screen is the library, with a sample book for checking that things work.</li>
+        <li><strong>Drag and drop</strong> a book of your own (or a folder of books) onto the window. If you drop a single book, it opens once it has been imported.</li>
+        <li>Click a cover in the library to open it. A vertical book appears ready to read from right to left.</li>
+        <li>Turn pages by <strong>clicking the left or right edge of the screen</strong>, with the <strong>arrow keys</strong>, or with the <strong>mouse wheel</strong>. Adjust the text size with <kbd>+</kbd> and <kbd>-</kbd>.</li>
+        <li>To use read-aloud, <strong>double-click</strong> where you want it to start. If VOICEVOX or AivisSpeech is not running, the app tries to start it.</li>
+      </ol>
+
+      <figure>
+        <a href="../assets/img/reader-text.webp" title="Open at full size"><img src="../assets/img/reader-text.webp" width="1280" height="820" loading="lazy"
+             alt="The reader, with vertical text flowing from right to left"></a>
+        <figcaption><b>Reading.</b> The text is set vertically, and ruby (reading aids above kanji) appears as it is. While you read, the screen shows only the text. Move the mouse to the top or bottom edge of the screen to bring up the toolbars.</figcaption>
+      </figure>
+
+      <p>
+        From here on, read only the parts you need.
+        If your library is growing, go to <a href="#shelf">chapter 4</a>; to change how books look, <a href="#display">chapter 6</a>;
+        to fall asleep listening, <a href="#sleep">chapter 11</a>.
+      </p>
+    </section>
+
+    <!-- 3 -->
+    <section id="add">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-book-add"/></svg>3</span>Adding books</h3>
+
+      <p>Every method goes through the same process. Use whichever suits you.</p>
+
+      <ul class="feature-list">
+        <li><strong>Drag and drop</strong> — drop books or folders onto the window. <strong>This works while you are reading, too.</strong> If you drop a single book, it opens once imported; if you drop several, you stay in the library</li>
+        <li><strong>The “Add books” button</strong> — top right of the library. It offers “Choose Files…” and “Add from Folder”</li>
+        <li><strong>File &gt; Open…</strong> (<kbd>⌘O</kbd>) — a window for choosing books. You can select several</li>
+        <li><strong>File &gt; Add from Folder…</strong> (<kbd>⇧⌘O</kbd>) — adds all the books in a folder</li>
+        <li><strong>From Finder or File Explorer</strong> — double-click a book file to open it in this app</li>
+      </ul>
+
+      <p>
+        When you give it a folder, it searches subfolders too and adds only files in supported formats.
+        Hidden files are skipped, and it looks at up to 5,000 files at a time.
+        Files in unsupported formats are ignored on purpose: dropping one on the window does nothing.
+      </p>
+      <p>
+        While several books are being added, progress is shown. Press “Stop” to stop; the books added so far stay.
+        For a large fixed-layout book, extracting the cover can take tens of seconds.
+      </p>
+
+      <div class="note">
+        <strong>Imported books are copied into the app’s data folder.</strong>
+        Moving or deleting the original file afterwards does not affect the book in the library.
+        Conversely, deleting a book from the library removes only the copy; your original file stays.
+        Importing the same file from the same place again does not add it twice.
+        The location of the data folder is in <a href="#trouble">chapter 16</a>.
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section id="shelf">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-shelf"/></svg>4</span>Using the library</h3>
+
+      <figure>
+        <a href="../assets/img/shelf-grid.webp" title="Open at full size"><img src="../assets/img/shelf-grid.webp" width="1280" height="820" loading="lazy"
+             alt="The library with covers in a grid, a sidebar on the left and a Continue Reading row at the top"></a>
+        <figcaption><b>Library (grid).</b> The sidebar on the left lists “All Books”, “Favourites”, “Unfiled” and the collections you have made. The top row shows the book you opened last; “Continue Reading” picks up where you left off. The number at the bottom left of each cover is how much of the book you have read.</figcaption>
+      </figure>
+
+      <h4>Finding and sorting</h4>
+      <ul class="feature-list">
+        <li><strong>Filter</strong> — the box at the top. Choose what it searches: All, Title, Author or Publisher</li>
+        <li><strong>Sort</strong> — Recently opened, Title, Author or Publisher. Shown only in the grid view</li>
+        <li><strong>View</strong> — “Grid” or “By author”. Switch with the two buttons at the top right</li>
+      </ul>
+
+      <figure>
+        <a href="../assets/img/shelf-author.webp" title="Open at full size"><img src="../assets/img/shelf-author.webp" width="1280" height="820" loading="lazy"
+             alt="The By author view, grouped under Japanese kana headings"></a>
+        <figcaption><b>By author.</b> Books are grouped in Japanese kana order by the reading of the author’s name. A book whose reading is unknown goes under “Other”. Right-click the book → “Edit reading” and type the reading in kana, and it moves to the right group.</figcaption>
+      </figure>
+
+      <h4>Collections</h4>
+      <p>
+        Create one with the <code>+</code> next to “Collections” in the sidebar, with “New Collection…” at the bottom of the sidebar, or by right-clicking a book → “Add to a New Collection…”.
+        You can also drag a book onto a collection in the sidebar. A book can be in several collections.
+      </p>
+      <p>
+        Collections can be <strong>nested</strong>. Right-click a collection for “Rename Collection”, “New Subcollection”, “Move to Top Level”, “Move Under” and “Delete Collection”.
+        Deleting a collection does not delete its books, and its subcollections move up one level.
+        Selecting a collection also shows the books in its subcollections.
+      </p>
+
+      <h4>What you can do by right-clicking a book</h4>
+      <ul class="feature-list">
+        <li>Add to Favourites / Remove from Favourites</li>
+        <li>Add to or remove from a collection (you can create a new collection on the spot)</li>
+        <li><strong>Edit reading</strong> — used for the kana order of the By author view</li>
+        <li><strong>Delete</strong> — removes the book from the library after confirming. <strong>The book’s bookmarks, reading position, its own reading dictionary, custom CSS and display settings go with it.</strong> Your original file is not deleted</li>
+      </ul>
+    </section>
+
+    <!-- 5 -->
+    <section id="read">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-read"/></svg>5</span>Reading a book</h3>
+
+      <h4>Bringing up the toolbars (read this first)</h4>
+      <p>
+        When you open a book, <strong>only the text is shown and the buttons are hidden</strong>, so the text can use as much of the screen as possible.
+        The toolbars show for about two seconds right after the book opens.
+      </p>
+      <ul class="feature-list">
+        <li><strong>Move the mouse to the top edge</strong> of the screen to bring up the top toolbar</li>
+        <li><strong>Move the mouse to the bottom edge</strong> of the screen to bring up the bottom toolbar</li>
+        <li>Move the mouse back over the text, and they hide again</li>
+        <li>Everything is also reachable from the menus without the toolbars. <kbd>⌘L</kbd> goes back to the library</li>
+      </ul>
+
+      <figure>
+        <a href="../assets/img/reader-toolbar.webp" title="Open at full size"><img src="../assets/img/reader-toolbar.webp" width="1280" height="820" loading="lazy"
+             alt="The reader with its top toolbar showing"></a>
+        <figcaption><b>The top toolbar.</b> From the left: “Library” (back to the library) and “Contents”; the book’s title in the middle; on the right: “Search”, “Bookmark here”, text direction, “Translation” (あA) and “Text size &amp; theme” (ぁあ). For a fixed-layout book, “Shift spread” is added and the text-direction button is not shown.</figcaption>
+      </figure>
+
+      <p>
+        The <strong>bottom toolbar</strong> has a slider for your position in the whole book, and buttons for “Read aloud”, “Stop”, “Save this chapter as audio”, “Save this chapter as a read-along video (MP4)”, “Auto Page Turn” and “Sleep Timer”.
+        Drag the slider to jump anywhere in the book. In a right-to-left book, the slider also runs right to left.
+      </p>
+
+      <h4>Turning pages</h4>
+      <div class="table-scroll">
+        <table>
+          <caption>Ways to turn pages</caption>
+          <tbody>
+            <tr><th>Click the left or right edge</th><td>One page toward that side. In a right-to-left book, the left edge is the next page</td></tr>
+            <tr><th><kbd>←</kbd> / <kbd>→</kbd></th><td>One page toward that side. In a right-to-left book, <kbd>←</kbd> is the next page</td></tr>
+            <tr><th><kbd>↓</kbd> / <kbd>↑</kbd></th><td>Next / previous page (regardless of binding)</td></tr>
+            <tr><th>Mouse wheel</th><td>One page per step</td></tr>
+            <tr><th><kbd>⌘]</kbd> / <kbd>⌘[</kbd></th><td>Next Page / Previous Page (Go menu)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        “Next Page” and “Previous Page” in the menu follow <strong>the order of the book, regardless of binding</strong>.
+        Left and right swap meaning in a vertical, right-bound book.
+      </p>
+      <p>Your reading position is saved automatically every time the page changes, and the book reopens there next time.</p>
+
+      <h4>Contents</h4>
+      <figure>
+        <a href="../assets/img/reader-toc.webp" title="Open at full size"><img src="../assets/img/reader-toc.webp" width="1280" height="820" loading="lazy"
+             alt="The reader with the table of contents open on the left, with parts, chapters and sections nested under triangles"></a>
+        <figcaption><b>Contents (<kbd>⌘T</kbd>).</b> The Contents button in the toolbar also opens it. In a book whose headings are several levels deep, such as part → chapter → section, <b>entries with children get a triangle</b> that opens and closes the branch. Press the text to jump there.</figcaption>
+      </figure>
+      <p>
+        The branches down to the chapter you are reading open automatically. Branches you opened yourself stay open when the chapter changes.
+      </p>
+
+      <h4>Bookmarks</h4>
+      <p>
+        To bookmark the current page, use the bookmark button in the toolbar or “Go &gt; Add Bookmark” (<kbd>⌘D</kbd>).
+        <strong>Select a sentence in the text and right-click</strong> to bookmark that sentence.
+      </p>
+
+      <figure>
+        <a href="../assets/img/reader-contextmenu.webp" title="Open at full size"><img src="../assets/img/reader-contextmenu.webp" width="1280" height="820" loading="lazy"
+             alt="The menu that appears when you select text and right-click"></a>
+        <figcaption><b>Right-clicking a selection.</b> Three items appear: “Add Bookmark”, “Add to Reading Dictionary” and “Add a reading for this spot only”. A bookmark made on a selection is listed with <b>the first 60 characters of that sentence</b>, which helps you find it later. The other two are explained in <a href="#dictionary">chapter 8</a>.</figcaption>
+      </figure>
+
+      <figure>
+        <a href="../assets/img/reader-bookmarks.webp" title="Open at full size"><img src="../assets/img/reader-bookmarks.webp" width="1280" height="820" loading="lazy"
+             alt="The reader with the bookmark list open on the left"></a>
+        <figcaption><b>Bookmark list (Go &gt; Bookmarks, <kbd>⌘B</kbd>).</b> Bookmarks are listed in reading order with how far into the book they are, the saved text and the date. “Bookmark here” adds the current spot. It uses the same place as Contents, so only one of the two is open at a time.</figcaption>
+      </figure>
+
+      <h4>Searching the text</h4>
+      <figure>
+        <a href="../assets/img/reader-search.webp" title="Open at full size"><img src="../assets/img/reader-search.webp" width="1280" height="820" loading="lazy"
+             alt="Search results listed, with the matches on the current page outlined in red"></a>
+        <figcaption><b>Search (<kbd>⌘F</kbd>).</b> Type a word, and the search starts after a short pause. Results are listed with the surrounding text, and matches on the page you are viewing are outlined in red. Choose a result to jump there. Results stop at 500; beyond that the list says so.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 6 -->
+    <section id="display">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-shoji"/></svg>6</span>Changing how books look</h3>
+
+      <p>The <strong>View</strong> menu gathers the items that change how books look, so you can switch them without opening Settings.</p>
+
+      <figure class="fig--inset">
+        <a href="../assets/img/menu-view.webp" title="Open at full size"><img src="../assets/img/menu-view.webp" width="219" height="483" loading="lazy"
+             alt="The View menu, open"></a>
+        <figcaption><b>View menu.</b> Text size, line spacing, theme, rendering mode, writing direction, binding direction, spreads, image aspect ratio, contents, translation, margins, spread shift and custom CSS.</figcaption>
+      </figure>
+
+      <div class="table-scroll">
+        <table>
+          <caption>Items in the View menu</caption>
+          <thead><tr><th>Item</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><th>Text size</th><td>Bigger Text <kbd>⌘=</kbd> / Smaller Text <kbd>⇧⌘-</kbd> / Reset Text Size <kbd>⌘0</kbd></td></tr>
+            <tr><th>Line spacing</th><td>Increase / Decrease / Reset Line Spacing</td></tr>
+            <tr><th>Theme</th><td>Auto / Light / Sepia / Dark</td></tr>
+            <tr><th>Rendering Mode</th><td>Reading-friendly / As authored</td></tr>
+            <tr><th>Writing Direction</th><td>Auto / Vertical / Horizontal</td></tr>
+            <tr><th>Binding Direction</th><td>Auto / Right-to-left / Left-to-right</td></tr>
+            <tr><th>Image Page Spread</th><td>Auto / Always two-up / Always single page (applies to fixed-layout books)</td></tr>
+            <tr><th>Text Spread</th><td>Auto / Always two-up / Always single page</td></tr>
+            <tr><th>Image Aspect Ratio…</th><td>Sets, for that book, which aspect ratio image pages are fitted to (only while a book is open)</td></tr>
+            <tr><th>Table of Contents</th><td>Opens the contents (<kbd>⌘T</kbd>)</td></tr>
+            <tr><th>Show / hide translation</th><td>The translation pane (<a href="#translation">chapter 9</a>)</td></tr>
+            <tr><th>Toggle Margins</th><td>Forces side margins onto a book whose text runs to the edges (the text takes 82% of the width)</td></tr>
+            <tr><th>Shift Spread</th><td>For a fixed-layout book, fixes page pairs that are off by one</td></tr>
+            <tr><th>Custom CSS…</th><td>Overrides the look of the text with CSS. There are two boxes, “shared by all books” and “this book only”, and changes apply as you type</td></tr>
+            <tr><th>Full Screen</th><td>Shows the window full screen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <strong>What a change applies to depends on the item and where you are.</strong>
+        Text size, line spacing, theme and margins always change the <strong>setting shared by all books</strong>.
+        Rendering mode, writing direction, binding direction and spreads changed from the menu or toolbar while a book is open are remembered <strong>for that book only</strong>.
+        If you pick the same value as the default again, the book stops holding its own setting, so it follows the default if you change the default later.
+        Changing them from the menu while in the library, or in <a href="#settings">Settings</a>, changes the <strong>default for all books</strong>.
+        A book that has its own setting keeps using that.
+      </div>
+
+      <h4>When to use each rendering mode</h4>
+      <dl class="deflist">
+        <dt>Reading-friendly (default)</dt>
+        <dd>
+          Absorbs rough markup in the EPUB and brings the book to a form that simply reads well. In particular, it:
+          <ul class="feature-list">
+            <li>Fits images inside the frame</li>
+            <li>Restores the proportions of SVG covers squashed by <code>preserveAspectRatio="none"</code></li>
+            <li>Fixes misaligned hanging indents</li>
+            <li>Rescues table-of-contents entries whose links are broken by finding where they should go</li>
+            <li>Hides footnotes and endnotes placed in <code>aside</code> elements from the flow of the text</li>
+          </ul>
+        </dd>
+        <dt>As authored</dt>
+        <dd>
+          Turns the corrections above off, so you see what the engine draws from exactly what the EPUB specifies.
+          Colours, text size, line spacing and custom CSS still apply in “As authored”, because they are reading settings, not an interpretation of the EPUB.
+        </dd>
+      </dl>
+      <p>
+        The following <strong>work in both modes</strong>:
+        enlarging image-only pages (covers, frontispieces) to fill the screen, the image page spread and aspect-ratio settings, inferring vertical writing (next section), and leaving ruby out of read-aloud.
+      </p>
+
+      <h4>If a book does not appear vertically</h4>
+      <p>
+        EPUBs often lack the vertical-writing declaration. So the app compares whether the book says it is vertical with how it was actually laid out.
+        If a book whose OPF <code>primary-writing-mode</code> is vertical, or a right-to-left book in Japanese, ends up laid out horizontally, the app sets it vertically.
+        Books with EBPAJ-style class names (such as <code>vrtl</code>) get the matching direction filled in.
+      </p>
+      <p>
+        If it is still wrong, open the book and choose “View &gt; Writing Direction &gt; Vertical”. It is remembered <strong>for that book</strong>.
+        The text-direction button in the toolbar also cycles through “auto → vertical (forced) → horizontal (forced)” each time you press it.
+        Your reading position stays where it was.
+      </p>
+      <p>
+        MOBI and AZW books come out horizontal even when the book is vertical, because the old MOBI format has nowhere to record vertical writing. This setting puts them back. AZW3 and KF8 stay vertical on their own.
+      </p>
+
+      <h4>If a spread pairs the wrong pages</h4>
+      <p>
+        For a fixed-layout book (photo books, manga), a “Shift spread” button appears in the toolbar.
+        If the pictures come out split across the wrong pages, for example because of the number of cover pages, press it to shift the pairing by one page so the right pages face each other.
+        This is saved per book.
+      </p>
+    </section>
+
+    <!-- 7 -->
+    <section id="speech">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-voice"/></svg>7</span>Read aloud</h3>
+
+      <h4>Preparing</h4>
+      <ol class="steps">
+        <li>Install VOICEVOX (or AivisSpeech).</li>
+        <li>Open “Settings…” (<kbd>⌘,</kbd>) and choose the engine in the “Speech” tab.</li>
+        <li>When “Engine status” shows <strong>Connected</strong>, you are ready.</li>
+        <li>Choose the voice, speed and pause length, then press “Save”. “Test voice” plays a sample with the values on screen, before you save.</li>
+      </ol>
+
+      <figure>
+        <a href="../assets/img/settings-audio.webp" title="Open at full size"><img src="../assets/img/settings-audio.webp" width="1280" height="820" loading="lazy"
+             alt="The Speech tab of Settings, with the engine status showing Connected"></a>
+        <figcaption><b>Settings &gt; Speech.</b> Choose “VOICEVOX (:50021)”, “AivisSpeech (:10101)” or “Custom URL”. With a custom URL, the app can connect to an engine running on another machine. The pause length is the silence at line breaks and punctuation; raising it gives a calmer reading.</figcaption>
+      </figure>
+
+      <p>
+        <strong>You do not have to start the engine yourself.</strong>
+        If the engine does not respond when read-aloud starts, the app starts it and waits up to 40 seconds for it to be ready.
+        Meanwhile the bottom of the screen says “Starting the speech engine…”.
+        Only VOICEVOX and AivisSpeech can be started this way. With “Custom URL”, start the engine yourself.
+      </p>
+
+      <h4>Starting read-aloud</h4>
+      <div class="table-scroll">
+        <table>
+          <tbody>
+            <tr><th>Double-click the text</th><td>Starts reading from that word</td></tr>
+            <tr><th><kbd>Space</kbd> / <kbd>⌘R</kbd></th><td>Play / pause (resumes from where it paused)</td></tr>
+            <tr><th><kbd>Enter</kbd> / <kbd>Esc</kbd> / <kbd>⌘.</kbd></th><td>Stop</td></tr>
+            <tr><th>Bottom toolbar</th><td>“Read aloud” and “Stop” buttons</td></tr>
+            <tr><th>“Read Aloud” menu</th><td>Play / Pause, Stop, Add to Reading Dictionary…, Edit Reading Dictionary…, Sleep Timer</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        While reading, the sentence being read is highlighted in yellow, and the part already spoken fills in with a stronger colour in time with the voice (karaoke style).
+        At the end of a page or chapter it moves on by itself and keeps reading to the end of the book.
+        The next sentences are synthesized in the background ahead of time, so there is hardly any wait between sentences.
+        Ruby is shown on screen but is not read a second time.
+      </p>
+      <p>
+        If synthesis fails twice in a row, the app assumes the engine cannot be reached and stops reading.
+      </p>
+    </section>
+
+    <!-- 8 -->
+    <section id="dictionary">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-scroll"/></svg>8</span>Reading dictionary</h3>
+
+      <p>
+        Use this to register words that the speech engine would otherwise read wrongly, such as character names and coined words.
+        <strong>It affects only read-aloud; the text on screen does not change.</strong>
+        The speech engines’ own user dictionaries are not used: the app replaces the text itself before passing it to the engine.
+      </p>
+      <p>
+        This dictionary exists because of how Japanese works: the same kanji can be read in several ways, and the right reading depends on the word it belongs to.
+        The examples below are Japanese, with the readings written in katakana.
+      </p>
+
+      <p>
+        <strong>Adding an entry and browsing saved entries happen in separate screens.</strong>
+        That way, when you only want to add one word, you do not have to scroll through a long list of everything you have saved.
+      </p>
+
+      <div class="table-scroll">
+        <table>
+          <caption>The two screens and how to open them</caption>
+          <thead><tr><th>What you want</th><th>How to open it</th><th>Screen</th></tr></thead>
+          <tbody>
+            <tr><th>Add one word</th><td>Select the word in the text and right-click → “Add to Reading Dictionary”</td><td>Add screen</td></tr>
+            <tr><th>Add one word</th><td>Menu “Read Aloud &gt; Add to Reading Dictionary…”</td><td>Add screen</td></tr>
+            <tr><th>Browse or fix saved entries</th><td>Menu “Read Aloud &gt; Edit Reading Dictionary…”</td><td>List screen</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure class="fig--inset">
+        <a href="../assets/img/menu-tts.webp" title="Open at full size"><img src="../assets/img/menu-tts.webp" width="349" height="384" loading="lazy"
+             alt="The Read Aloud menu, with Add to Reading Dictionary… and Edit Reading Dictionary…"></a>
+        <figcaption><b>Read Aloud menu.</b> The dictionary has two items: one to add and one to edit.</figcaption>
+      </figure>
+
+      <p>
+        The add screen shows <strong>only the spelling, the reading and the options</strong>. Press “Done” to save and close.
+        If you want to see the list, use <b>“Browse saved entries”</b> at the very bottom of the same screen.
+        In the list, press a row to edit that entry, and press “‹” at the top left to go back to the list.
+      </p>
+
+      <h4>The trouble is one-character names</h4>
+      <p>
+        Suppose a character is named <strong>明 (Akira)</strong>.
+        Read as it is, the engine says “Mei” or “Akari”, so you want to register <code>明 → アキラ</code>.
+        But the moment you do, <strong>every 明 in the text becomes Akira</strong>.
+      </p>
+      <p style="font-size:.95rem;color:var(--ink-soft)">
+        明日 (ashita, “tomorrow”) → <b>Akira</b>-bi　/　明確 (meikaku, “clear”) → <b>Akira</b>-kaku　/　明暗 (meian, “light and dark”) → <b>Akira</b>-an　/　説明 (setsumei, “explanation”) → setsu-<b>Akira</b>
+      </p>
+      <p>
+        Registering a short word drags in every longer word that contains it,
+        and the speech engines’ user dictionaries have no way to prevent that.
+      </p>
+
+      <h4>The fix: the name low, the compound words high</h4>
+      <p>
+        Each entry in this dictionary has a <strong>layer (1 to 10)</strong>, and replacements are made <strong>starting from the highest layer</strong>.
+        Once a part of the text has been replaced, lower layers never touch it again. So the steps are:
+      </p>
+      <ol class="steps">
+        <li>Put <code>明 → アキラ</code> on a <strong>low layer</strong> (say, 2).</li>
+        <li>
+          Register the <strong>words containing 明</strong> that appear in that book on a <strong>high layer</strong> (say, 8):
+          <code>明日→アシタ</code>, <code>明確→メイカク</code>, <code>明暗→メイアン</code>, <code>説明→セツメイ</code> …
+        </li>
+      </ol>
+      <p>
+        The compound words are settled first and locked, so <strong>only a 明 that belongs to no other word becomes Akira</strong>.
+        A novel uses a limited set of such words, so once you have collected them, the book is read correctly from start to finish.
+      </p>
+
+      <figure>
+        <a href="../assets/img/dictionary-entry.webp" title="Open at full size"><img src="../assets/img/dictionary-entry.webp" width="1280" height="820" loading="lazy"
+             alt="The add screen of the reading dictionary, with 明 in the spelling field, an empty reading, and the scope, surrounding characters and layer below"></a>
+        <figcaption><b>The add screen.</b> “Spelling” is how the word is written in the text; “Reading” is in katakana (hiragana also works). Opened from a selection, the layer starts at 6. The name goes on a low layer, so press <b>−</b> to lower it. Switch the control at the top to “Pattern” to write a regular expression. <b>The list of saved entries is not shown on this screen.</b></figcaption>
+      </figure>
+
+      <figure>
+        <a href="../assets/img/dictionary-list.webp" title="Open at full size"><img src="../assets/img/dictionary-list.webp" width="1280" height="820" loading="lazy"
+             alt="The reading dictionary list, with 明日, 明確, 明暗 and 説明 on layer 8, 明 on layer 2, and the converted text in the test box"></a>
+        <figcaption>
+          <b>The list screen. “Test” shows the result on the spot.</b>
+          With the four compound words on layer 8 and <b>明→アキラ</b> on layer 2,
+          typing <b>明は明日、明暗を明確に説明した。</b> (“Akira clearly explained light and dark tomorrow.”) gives
+          <b>アキラはアシタ、メイアンをメイカクにセツメイした。</b>
+          None of the compound words is caught up in the change; only the character’s name is read differently.
+        </figcaption>
+      </figure>
+
+      <div class="note">
+        <strong>Use text search to collect the compound words.</strong>
+        Search for the character with <kbd>⌘F</kbd>, and every place it appears in the book is listed with the surrounding text.
+        Working down that list as you register words means fewer are missed.
+      </div>
+
+      <p>
+        Within the same layer, longer spellings are settled first (entries tied to a spot come before even those).
+        So even if you forget to set a layer, a short word is unlikely to take over a longer one.
+      </p>
+
+      <h4>A word you registered before opens with its saved reading</h4>
+      <p>
+        If you registered the selected word before, the app does not create a new, empty entry.
+        It opens <strong>a screen filled in with the reading, layer and options you entered before</strong>.
+        The heading also changes from “Add to the reading dictionary” to <b>“Edit a saved reading”</b>,
+        so you can tell whether you are creating an entry or editing one.
+      </p>
+      <p>
+        This is because if the same spelling were registered twice, you could not tell which entry is in effect.
+        It looks in the same order as read-aloud: “This book only” first, then “All books”.
+        Pattern (regular expression) entries are not matched this way, because a pattern never equals the text you selected.
+      </p>
+      <figure>
+        <a href="../assets/img/dictionary-existing.webp" title="Open at full size"><img src="../assets/img/dictionary-existing.webp" width="1280" height="820" loading="lazy"
+             alt="The add screen with the heading Edit a saved reading, filled in with 明 as the spelling, アキラ as the reading and layer 2"></a>
+        <figcaption><b>Trying to register 明 again after registering it before.</b> The screen opens with the reading and the layer filled in. The heading has changed to “Edit a saved reading”, so you can see you are not creating a new entry.</figcaption>
+      </figure>
+
+      <h4>For all books, or for this book only</h4>
+      <p>
+        The dictionary is split in two. A <strong>reading used only in one work</strong>, such as a character’s name,
+        can be registered without carrying it into other books.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>&nbsp;</th><th>Where it applies</th><th>Use it for</th></tr></thead>
+          <tbody>
+            <tr><th>All books</th><td>Every book on that shelf</td><td>General fixes, such as reading 明日 as “ashita”</td></tr>
+            <tr><th>This book only</th><td>Only the book that is open now</td><td>Things read differently in other books, such as the names of that book’s characters</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>Choose which one with “Applies to” on the add screen.</strong>
+        The two options sit side by side; press one. The default is “All books”, and you move an entry to the other side in the same place.
+        When no book is open (in the library), there is no “this book”, so this choice is not shown.
+      </p>
+      <p>
+        When the same spelling is in both, <strong>the “This book only” entry is used</strong>.
+        Delete it, and the reading from “All books” applies again.
+      </p>
+
+      <h4>Conditions on surrounding characters, without regular expressions</h4>
+      <p>
+        Registering a single kanji can change compound words too.
+        Registering 行 as “okona” (as in “to carry out”) also changes 銀行 (ginkō, “bank”) and 旅行 (ryokō, “travel”).
+        Besides putting the compound words on a higher layer, you can <strong>make the characters before and after it a condition</strong>.
+      </p>
+      <p>
+        Just choose from <b>“Preceded by”</b> and <b>“Followed by”</b> under “Surrounding characters” on the add screen. No regular expression is needed.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Spelling</th><th>Condition</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><th><code>行</code></th><td>Preceded by not a kanji</td><td>In 「銀行と旅行、行った」, the compound words stay as they are; only the last 行 is read differently</td></tr>
+            <tr><th><code>行った</code></th><td>Preceded by hiragana</td><td>「とり行った」 → 「とりオコナッタ」; 「銀行った」 does not change</td></tr>
+            <tr><th><code>年</code></th><td>Preceded by a digit</td><td>In 「五年と5年」, only 「5年」 is read differently</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The choices are: anything, hiragana, katakana, a kanji, not a kanji, and a digit.
+        If you set both sides, the reading is replaced only when both conditions are met.
+        Entries with different conditions are listed separately (“行 preceded by hiragana” and “行 preceded by a kanji” can be two entries).
+      </p>
+
+      <h4>Writing a pattern (regular expression)</h4>
+      <p>
+        Switch the control at the top of the add screen to “Pattern” to write a regular expression as the spelling.
+        Parts in parentheses can be used in the reading as <code>$1</code>, <code>$2</code> …; captured text is converted to katakana.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Spelling</th><th>Reading</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><th><code>([0-9]+)年</code></th><td><code>$1ネン</code></td><td>「1927年」 → 「1927ネン」</td></tr>
+            <tr><th><code>(?&lt;=[ぁ-ん])行った</code></th><td><code>オコナッタ</code></td><td>Replaced only when preceded by hiragana</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A row that is not a valid regular expression is not used, and the screen says “Invalid regular expression. This row is ignored.”
+      </p>
+
+      <h4>Changing the reading in one spot only</h4>
+      <p>
+        Sometimes you want to change the reading of a word in just one place. Select the word in the text, right-click,
+        and choose <b>“Add a reading for this spot only”</b>. The entry remembers the position (its layer starts at 9).
+      </p>
+      <p>
+        <strong>The position is a guide; the place actually changed is decided by matching the spelling.</strong>
+        Different tools count characters differently, so trusting the position as it is could change a spot one character off.
+        Instead, the app looks for <strong>the same spelling</strong> near the position you chose and changes that.
+        If the same word appears twice nearby, <strong>only the one closest to your selection</strong> is changed.
+      </p>
+      <p>
+        You can change how far it looks with “How far to look (characters)” on the add screen (the default is 40).
+        Press “Remove the spot” to turn it back into an ordinary entry that matches anywhere in the book.
+        An entry tied to a spot cannot be tried in the “Test” box, because there is no position in the text to match against.
+      </p>
+
+      <h4>Other options</h4>
+      <ul class="feature-list">
+        <li><strong>Insert boundaries around the reading</strong> — stops the word being parsed together with its neighbour and read wrongly. The silence a boundary creates is removed before synthesis, so nothing drags</li>
+        <li><strong>Enabled</strong> — turns an entry off for a while without deleting it</li>
+        <li><strong>Test</strong> — on the list screen. Type a sentence to see the result, replaced in the same order as read-aloud (All books → This book only)</li>
+      </ul>
+
+      <div class="note">
+        The “All books” reading dictionary is kept <strong>per shelf</strong> (<a href="#profiles">chapter 13</a>), so you can keep proper nouns from work on a separate shelf. The “This book only” dictionary belongs to its book and is deleted along with the book.
+      </div>
+
+      <h4>Do you have to register everything by hand?</h4>
+      <p>
+        To be honest, this job is tedious. In a long novel, the words containing 明 alone can run to dozens,
+        and typing them in one at a time is hard work.
+      </p>
+      <p>
+        So the app includes <strong>a way to operate the dictionary with commands from outside (the test bus)</strong>.
+        AI agents can use it through the bundled MCP server.
+        The round trip — “find the words containing that character in the text → add them with readings → check the result against the exact text sent to read-aloud” —
+        can run without a person typing each entry.
+      </p>
+
+      <div class="note note--warn">
+        <strong>This is turned off in the released app.</strong>
+        Commands run with the app’s permissions, so leaving it open would let other local processes take screenshots or write files.
+        It works only in debug builds, or when the app is launched with the environment variable <code>EPUB_READER_TESTBUS=1</code>.
+      </div>
+
+      <p>
+        Here is how it works. The bundled relay in <a href="https://github.com/veltrea/epub-reader-js/tree/main/mcp/testbus-mcp"><code>mcp/testbus-mcp/</code></a> listens on
+        <code>127.0.0.1:47832</code> (loopback, so it cannot be reached from the network), and the app fetches commands from it.
+        The app itself does not open a port. A small client that sends one command is <a href="https://github.com/veltrea/epub-reader-js/blob/main/tests/tb.mjs"><code>tests/tb.mjs</code></a> (both run on Node with no external dependencies).
+        The commands are not limited to the dictionary; there are also commands for driving and capturing the screen.
+      </p>
+
+      <div class="table-scroll">
+        <table>
+          <caption>Dictionary commands</caption>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><th><code>dictList</code></th><td>Returns every entry</td></tr>
+            <tr><th><code>dictAdd</code></th><td>Adds one entry (spelling, reading, layer, boundaries, enabled, surrounding conditions, spot)</td></tr>
+            <tr><th><code>dictUpdate</code> / <code>dictDelete</code></th><td>Edits or deletes an entry</td></tr>
+            <tr><th><code>setRules</code></th><td>Replaces the whole dictionary (bulk load)</td></tr>
+            <tr><th><code>applyRules</code></th><td>Applies the dictionary to any text and returns <strong>the text that would be sent to read-aloud</strong></td></tr>
+            <tr><th><code>openDictForm</code> / <code>openDictList</code></th><td>Opens the add screen or the list screen (the same screens a person gets)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size:.92rem;color:var(--ink-soft)">
+        <code>dictList</code>, <code>dictAdd</code>, <code>dictUpdate</code>, <code>dictDelete</code> and <code>setRules</code> take
+        <code>scope</code>: <code>"common"</code> (all books; the default) or <code>"book"</code> (this book only).
+        <code>dictList</code> alone also accepts <code>"merged"</code> (the same order that is passed to read-aloud).
+        To work with a “This book only” dictionary, open a book first.
+      </p>
+
+<pre><code># Add a word
+curl -s -XPOST http://127.0.0.1:47832/cmd -H 'Content-Type: application/json' \
+  -d '{"cmd":"dictAdd","args":{"surface":"明暗","reading":"メイアン","layer":8}}'
+
+# Check against the text sent to read-aloud
+curl -s -XPOST http://127.0.0.1:47832/cmd -H 'Content-Type: application/json' \
+  -d '{"cmd":"applyRules","args":{"text":"明は明日、明暗を明確に説明した。"}}'</code></pre>
+
+      <p>
+        The key is the last one, <code>applyRules</code>.
+        <strong>You can tell whether the text will be read the way you intend from the text alone, without listening</strong>,
+        so an agent can check its own entries and fix any that are wrong, again and again.
+        Details are in the “Test bus” section of <a href="https://github.com/veltrea/epub-reader-js/blob/main/docs/DEVELOPMENT.md">DEVELOPMENT.md</a>.
+      </p>
+    </section>
+
+    <!-- 9 -->
+    <section id="translation">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-pair"/></svg>9</span>Translation</h3>
+
+      <p>
+        Translates the paragraphs currently on screen and shows the translation beside the original.
+        The layout of the text is not touched, so vertical writing, spreads and ruby stay as they are.
+      </p>
+
+      <h4>Preparing</h4>
+      <p>Translation connects to an <strong>OpenAI-compatible API</strong>. No translator is bundled.</p>
+      <dl class="deflist">
+        <dt>On your own machine (nothing leaves it)</dt>
+        <dd>
+          Install LM Studio or Ollama, load a model for translation, and start its server (LM Studio defaults to <code>:1234</code>, Ollama to <code>:11434</code>).
+          In Settings → “Translation”, enter the Server URL, and once “Connection” shows it is connected, pick a model. Leave the API key blank.
+        </dd>
+        <dt>With a cloud API</dt>
+        <dd>
+          In the same tab, enter that service’s OpenAI-compatible address and your API key.
+          <strong>Your text is sent to that service.</strong> Check its terms before translating unpublished work.
+        </dd>
+      </dl>
+
+      <h4>Using it</h4>
+      <ul class="feature-list">
+        <li>Open and close it with the <strong>あA</strong> button in the toolbar or “View &gt; Show / hide translation”</li>
+        <li>When you turn a page, only the paragraphs visible on screen are translated (up to 40 per screen)</li>
+        <li>Paragraphs already translated are remembered and not translated again when you come back. “Translate again” translates without using the remembered result</li>
+        <li>The <strong>原</strong> button at the top of the pane hides the original text. <strong>A－ / A＋</strong> change the size of the translated text</li>
+        <li>Drag the left edge of the pane to change its width</li>
+        <li><strong>Double-click a line of translation, and the matching paragraph in the text lights up for 1.8 seconds</strong>, so you can see which translation belongs where</li>
+      </ul>
+
+      <div class="table-scroll">
+        <table>
+          <caption>Settings &gt; Translation</caption>
+          <thead><tr><th>Item</th><th>Default</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><th>Server URL</th><td><code>http://127.0.0.1:1234</code></td><td>Address of the OpenAI-compatible API</td></tr>
+            <tr><th>API key</th><td>Blank</td><td>Leave blank for a local server. For a cloud service, enter your key here</td></tr>
+            <tr><th>Model</th><td>Automatic (first in the list)</td><td>Chosen from the list the server returns</td></tr>
+            <tr><th>Source language</th><td>Detect</td><td>Japanese, English, Chinese, Korean, French, German and Spanish can also be chosen</td></tr>
+            <tr><th>Target language</th><td>Japanese</td><td>The language to translate into</td></tr>
+            <tr><th>Variation</th><td>0.20</td><td>Higher gives freer translations; lower stays closer to the original</td></tr>
+            <tr><th>Passages at once</th><td>2 (1–8)</td><td>More is faster but heavier on the machine</td></tr>
+            <tr><th>Pass the previous passage as context</th><td>On</td><td>Makes translations more consistent, at the cost of sending more text</td></tr>
+            <tr><th>Cut the thinking short</th><td>On</td><td>Stops models that think before answering from ending without a translation. Keep it on for a local server</td></tr>
+            <tr><th>Cached translations</th><td>—</td><td>Shows how many paragraphs are remembered. “Clear” throws them all away</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <strong>The quality of the translation is the quality of the model you choose.</strong>
+        The app does not translate; it only shows what it receives. Smaller models break down more on dialogue, honorifics and proper nouns, and may even invent names.
+        A translation into a language you cannot read cannot be checked as it is. For anything you show others or use for work, have it checked by someone who reads that language, or by a larger model.
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section id="autopager">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-turn"/></svg>10</span>Auto page turn</h3>
+
+      <figure class="fig--inset">
+        <a href="../assets/img/menu-autopager.webp" title="Open at full size"><img src="../assets/img/menu-autopager.webp" width="302" height="329" loading="lazy"
+             alt="The Auto Page Turn submenu of the Go menu"></a>
+        <figcaption><b>Go &gt; Auto Page Turn.</b> The “Auto Page Turn” button in the bottom toolbar shows the same items.</figcaption>
+      </figure>
+
+      <p>
+        Choose <strong>10, 15, 20, 30, 45, 60 or 90 seconds</strong>, or enter any number from 1 to 3600 seconds with “Custom Interval…”.
+      </p>
+      <ul class="feature-list">
+        <li>The seconds left until the next turn are shown on the button in the bottom toolbar</li>
+        <li>If you turn a page yourself, the count starts again from that moment</li>
+        <li><strong>Pages are not turned while reading aloud</strong> (read-aloud turns the pages itself). Meanwhile the button shows “—”, and the count starts again when reading ends</li>
+        <li>It stops by itself at the end of the book</li>
+        <li>To stop it, choose “Stop Auto Page Turn” in the same menu</li>
+        <li><strong>It stops when you close the book and go back to the library</strong></li>
+      </ul>
+    </section>
+
+    <!-- 11 -->
+    <section id="sleep">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-moon"/></svg>11</span>Sleep timer</h3>
+
+      <figure class="fig--inset">
+        <a href="../assets/img/menu-sleep.webp" title="Open at full size"><img src="../assets/img/menu-sleep.webp" width="349" height="384" loading="lazy"
+             alt="The Sleep Timer submenu of the Read Aloud menu"></a>
+        <figcaption><b>Read Aloud &gt; Sleep Timer.</b> The “Sleep Timer” button in the bottom toolbar also opens it, and shows the time left while it runs. This screenshot was taken before two items were renamed; they are now “Sleep this computer” and “Shut down this computer”.</figcaption>
+      </figure>
+
+      <p>
+        Choose <strong>15, 30, 45, 60, 90 or 120 minutes</strong>, or enter any number of minutes with “Custom Duration…”.
+        To cancel it, choose “Cancel Timer”.
+      </p>
+
+      <h4>When it expires</h4>
+      <p>Whichever you choose, read-aloud is stopped first.</p>
+      <dl class="deflist">
+        <dt>Stop Speech</dt>
+        <dd>Only stops read-aloud (the default).</dd>
+        <dt>Sleep this computer</dt>
+        <dd>Stops read-aloud, then puts the computer to sleep.</dd>
+        <dt>Shut down this computer</dt>
+        <dd>
+          Stops read-aloud, then waits <strong>30 seconds</strong> before shutting down.
+          The seconds left are shown on the button in the bottom toolbar.
+          If you are still awake, choose “Cancel Timer” during those 30 seconds, and the computer does not shut down.
+        </dd>
+      </dl>
+
+      <div class="note note--warn">
+        <strong>Sleep and shut down affect the whole computer, not just this app.</strong>
+        Do not use them while other apps have unsaved work.
+        On macOS, shut down is requested through System Events, so the first time macOS asks for permission to control System Events. If you do not allow it, the power action is not carried out.
+        On Windows, shutdown is not forced, so it stops if another app refuses to quit. On a machine with hibernation enabled, sleep may hibernate instead.
+      </div>
+
+      <ul class="feature-list">
+        <li>The timer keeps running when you close the book and go back to the library, and you can cancel it from there</li>
+        <li><strong>Quitting the app clears the timer</strong>, so a timer from the night before cannot start again and turn the computer off when you launch the app the next day</li>
+      </ul>
+    </section>
+
+    <!-- 12 -->
+    <section id="export">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-export"/></svg>12</span>Exporting audio and video</h3>
+
+      <figure class="fig--inset">
+        <a href="../assets/img/menu-file.webp" title="Open at full size"><img src="../assets/img/menu-file.webp" width="195" height="208" loading="lazy"
+             alt="The File menu, with the Export submenu at the bottom"></a>
+        <figcaption><b>File &gt; Export.</b> The “Save this chapter as audio” and “Save this chapter as a read-along video (MP4)” buttons in the bottom toolbar do the same.</figcaption>
+      </figure>
+
+      <p>
+        Both export <strong>the chapter you are reading now</strong>, and work only while a book is open.
+      </p>
+
+      <dl class="deflist">
+        <dt>Save Chapter as Audio… (WAV)</dt>
+        <dd>Synthesizes the chapter’s sentences in order and joins them into one audio file. Useful for listening to your own manuscript on the way to work.</dd>
+        <dt>Save Chapter as Video… (MP4)</dt>
+        <dd>Creates a video combining the look of the text with the spoken audio, at 1920×1080 and 30 frames per second. Vertical or horizontal layout is chosen automatically from the direction of the text on screen. Where MP4 cannot be produced, it is saved as WebM. No screen recorder or video editor is needed.</dd>
+      </dl>
+
+      <ul class="feature-list">
+        <li>Files are saved to <strong>Settings &gt; Speech &gt; Audio save folder</strong>. If none is set, the app asks where to save and remembers the folder you choose for next time</li>
+        <li>Audio shows “Synthesizing…” with progress. Video shows a progress bar and a “Cancel” button</li>
+        <li>While reading aloud or exporting, the export items in the menu are greyed out. Exporting from the toolbar buttons stops read-aloud first</li>
+        <li>Exports use the reading dictionary and the voice, speed and pause settings</li>
+        <li>The whole chapter is synthesized, so a long chapter takes time</li>
+      </ul>
+
+      <div class="note">
+        <strong>Before publishing exported audio or video, check the terms of the voice.</strong>
+        Audio made with VOICEVOX or AivisSpeech comes with the terms of the voice library you used.
+        Many voices require crediting the character’s name (for example <code>VOICEVOX:四国めたん</code>), and whether commercial use is allowed differs from voice to voice.
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section id="profiles">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-noren"/></svg>13</span>Switching shelves</h3>
+
+      <p>
+        You can split your whole collection into several shelves (“Work”, “Hobby” and so on). The commands are in the “File” menu.
+      </p>
+      <ul class="feature-list">
+        <li><strong>New Shelf…</strong> — creates a shelf with the name you enter and switches to it</li>
+        <li><strong>Switch Shelf</strong> — lists your shelves; choose one to switch to it</li>
+        <li><strong>Manage Shelves…</strong> — switch, rename, delete and add shelves</li>
+      </ul>
+
+      <figure>
+        <a href="../assets/img/shelf-profiles.webp" title="Open at full size"><img src="../assets/img/shelf-profiles.webp" width="1280" height="820" loading="lazy"
+             alt="The Manage Shelves screen, with two shelves listed and one marked Current"></a>
+        <figcaption><b>Manage Shelves.</b> “Switch” changes the shelf being shown. A shelf created with “Add Shelf” below is not switched to automatically. A new shelf starts empty, without the bundled sample. The screenshots on this site were taken after switching to a shelf that holds only books that can be shown publicly.</figcaption>
+      </figure>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Kept separately per shelf</th><th>Shared by all shelves</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>The list of books, collections, favourites, reading positions, bookmarks, the reading dictionary (the “All books” side), the CSS shared by all books, and the last book read</td>
+              <td>App settings (theme, text size, language, speech engine, voice, translation server and so on)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Why switching instead of hiding</h4>
+      <p>
+        A collection can include books you would not show others: data you hold for work, books you would rather your family did not see, books that have nothing to do with the person you are sharing your screen with.
+        With a “hide” design, missing a single path — forgetting to turn hiding back on, covers left in a cache — is enough for them to show.
+        With a design that switches what is read, <strong>anything not read cannot be shown</strong>.
+        The intended use is to keep a shelf with only books you can show, for screen sharing and screenshots.
+      </p>
+
+      <ul class="feature-list">
+        <li>The original shelf (Library) and the shelf being shown cannot be deleted</li>
+        <li>Deleting a shelf does not erase its data; it is moved to <code>Deleted/</code> in the data folder, so a mistake can be undone</li>
+        <li>Deleting a shelf does not delete your original book files</li>
+      </ul>
+    </section>
+
+    <!-- 14 -->
+    <section id="settings">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-hanabishi"/></svg>14</span>Settings</h3>
+
+      <p>
+        Open with “Settings…” (<kbd>⌘,</kbd>). On macOS it is in the app menu; on Windows it is near the bottom of the “File” menu. The gear button at the top right of the library also opens it.
+        There are three tabs: “Speech”, “Display” and “Translation”.
+      </p>
+      <p>
+        Changes are saved <strong>when you press “Save”</strong> and take effect right away. “Close” closes without saving.
+        Changing the language does not require restarting the app; the menus are rebuilt too.
+      </p>
+
+      <h4>Speech</h4>
+      <ul class="feature-list">
+        <li>TTS engine (VOICEVOX / AivisSpeech / Custom URL), engine URL, engine status</li>
+        <li>Voice, speed (0.5–2)</li>
+        <li>Pause length (between lines / punctuation)</li>
+        <li>Audio save folder (choose with “Browse…”)</li>
+        <li>The “Test voice” button (shown only on this tab)</li>
+      </ul>
+
+      <h4>Display</h4>
+      <figure>
+        <a href="../assets/img/settings-display.webp" title="Open at full size"><img src="../assets/img/settings-display.webp" width="1280" height="820" loading="lazy"
+             alt="The Display tab of Settings, listing text size, line height, theme, language, text direction and more"></a>
+        <figcaption><b>Settings &gt; Display.</b> These values are <b>the defaults for all books</b>. Rendering mode, direction, binding and spreads changed from the reader while a book is open are kept for that book only and take priority over these.</figcaption>
+      </figure>
+
+      <ul class="feature-list">
+        <li>Font size (0.6–2.5), line height (1.2–2.6), theme</li>
+        <li>Language (Auto / 日本語 / English)</li>
+        <li>Text direction, render mode, binding direction, image page spread, text spread</li>
+        <li><strong>Debug mode</strong> — a tool for fixing typesetting. Turn it on, and a “Measuring grid” button appears in the reader toolbar. Pressing it lays a colour ruler over the screen, so a screenshot alone tells you margins and overflow as coordinates</li>
+      </ul>
+
+      <h4>Translation</h4>
+      <p>See the table in <a href="#translation">chapter 9</a>.</p>
+    </section>
+
+    <!-- 15 -->
+    <section id="shortcuts">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-fuda"/></svg>15</span>Keyboard shortcuts</h3>
+
+      <p><kbd>⌘</kbd> in the tables is the macOS Command key. <strong>On Windows, use <kbd>Ctrl</kbd> instead</strong> (for example, <kbd>⌘O</kbd> is <kbd>Ctrl+O</kbd>).</p>
+
+      <div class="table-scroll">
+        <table>
+          <caption>Available from the menus</caption>
+          <tbody>
+            <tr><th><kbd>⌘O</kbd></th><td>Open… (choose books; in the library)</td></tr>
+            <tr><th><kbd>⇧⌘O</kbd></th><td>Add from Folder… (in the library)</td></tr>
+            <tr><th><kbd>⌘,</kbd></th><td>Settings…</td></tr>
+            <tr><th><kbd>⌘F</kbd></th><td>Find in Book…</td></tr>
+            <tr><th><kbd>⌘T</kbd></th><td>Table of Contents</td></tr>
+            <tr><th><kbd>⌘D</kbd></th><td>Add Bookmark</td></tr>
+            <tr><th><kbd>⌘B</kbd></th><td>Bookmarks</td></tr>
+            <tr><th><kbd>⌘]</kbd> / <kbd>⌘[</kbd></th><td>Next Page / Previous Page</td></tr>
+            <tr><th><kbd>⌘L</kbd></th><td>Back to Library</td></tr>
+            <tr><th><kbd>⌘R</kbd></th><td>Play / Pause</td></tr>
+            <tr><th><kbd>⌘.</kbd></th><td>Stop</td></tr>
+            <tr><th><kbd>⌘=</kbd></th><td>Bigger Text (on some keyboards the menu shows <kbd>⌘;</kbd>; it is the same key)</td></tr>
+            <tr><th><kbd>⇧⌘-</kbd></th><td>Smaller Text</td></tr>
+            <tr><th><kbd>⌘0</kbd></th><td>Reset Text Size</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <caption>While reading (not in the menus)</caption>
+          <tbody>
+            <tr><th><kbd>←</kbd> / <kbd>→</kbd></th><td>One page toward that side (in a right-to-left book, <kbd>←</kbd> is next)</td></tr>
+            <tr><th><kbd>↓</kbd> / <kbd>↑</kbd></th><td>Next / previous page</td></tr>
+            <tr><th><kbd>+</kbd> / <kbd>-</kbd></th><td>Bigger / smaller text</td></tr>
+            <tr><th><kbd>Space</kbd></th><td>Start / pause read-aloud</td></tr>
+            <tr><th><kbd>Enter</kbd></th><td>Stop read-aloud</td></tr>
+            <tr><th><kbd>Esc</kbd></th><td>Stops read-aloud if it is playing; otherwise closes the contents, bookmarks or search pane</td></tr>
+            <tr><th>Click the left or right edge</th><td>One page toward that side</td></tr>
+            <tr><th>Mouse wheel</th><td>One page per step</td></tr>
+            <tr><th>Double-click</th><td>Read aloud from that spot</td></tr>
+            <tr><th>Select text and right-click</th><td>Add Bookmark / Add to Reading Dictionary / Add a reading for this spot only</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The keys in the second table do nothing while the cursor is in a text box.</p>
+    </section>
+
+    <!-- 16 -->
+    <section id="trouble">
+      <h3><span class="chapnum"><svg class="mon" aria-hidden="true"><use href="#mon-chochin"/></svg>16</span>Troubleshooting</h3>
+
+      <dl class="deflist">
+        <dt>macOS says the app cannot be opened because the developer cannot be verified</dt>
+        <dd>This is because of the ad-hoc signature. Allow it once with System Settings → Privacy &amp; Security → “Open Anyway” (<a href="#install">chapter 1</a>).</dd>
+
+        <dt>Windows shows “Windows protected your PC”</dt>
+        <dd>The app is not signed with a code-signing certificate. Press “More info”, then “Run anyway”.</dd>
+
+        <dt>The buttons disappeared when I opened a book</dt>
+        <dd>
+          The toolbars appear when you <strong>move the mouse to the top or bottom edge of the screen</strong>; they are normally hidden to give the text more room.
+          From the keyboard, <kbd>⌘L</kbd> goes back to the library.
+        </dd>
+
+        <dt>Read-aloud does not start</dt>
+        <dd>
+          If the engine is not running, the app tries to start it and shows “Starting the speech engine…” at the bottom.
+          If nothing happens after waiting, or it says “Could not start the speech engine”, check that VOICEVOX or AivisSpeech is installed.
+          With “Custom URL”, the engine is not started automatically; start it yourself.
+          If you changed its port, set the URL in the Speech tab of Settings (VOICEVOX defaults to <code>:50021</code>, AivisSpeech to <code>:10101</code>).
+        </dd>
+
+        <dt>Some files do nothing when dropped on the window</dt>
+        <dd>That format is not supported (see “Files it opens” in <a href="#install">chapter 1</a>). Unsupported files are ignored on purpose.</dd>
+
+        <dt>A vertical book is shown horizontally (or the other way round)</dt>
+        <dd>
+          With the book open, choose from “View &gt; Writing Direction”, or use the text-direction button in the toolbar. It is remembered for that book.
+          MOBI and AZW books always come out horizontal because of the format (<a href="#display">chapter 6</a>).
+        </dd>
+
+        <dt>A cover is squashed</dt>
+        <dd>Check that the rendering mode is not “As authored”. “Reading-friendly” restores the proportions of SVG covers.</dd>
+
+        <dt>The pictures in a photo book are split across the wrong pages</dt>
+        <dd>Press “Shift spread” in the toolbar. It appears only for fixed-layout books.</dd>
+
+        <dt>The text looks cut off at the edges</dt>
+        <dd>Add margins with “View &gt; Toggle Margins”, or adjust with “Custom CSS…”.</dd>
+
+        <dt>A book goes under “Other” in the By author view</dt>
+        <dd>Right-click the book → “Edit reading” and enter the author’s reading in kana.</dd>
+
+        <dt>I fixed a reading, and another word changed too</dt>
+        <dd>
+          A short word is replacing part of a longer word. Move the longer word you want to protect to a <strong>higher layer</strong>, or add a surrounding-character condition (<a href="#dictionary">chapter 8</a>).
+        </dd>
+
+        <dt>The export menu items are greyed out</dt>
+        <dd>Either no book is open, read-aloud is playing, or an export is running. Stop it, then try again.</dd>
+
+        <dt>No translation appears</dt>
+        <dd>
+          Check “Connection” in Settings → “Translation”. If it does not connect, check that the server is running and the URL is right (and, for a cloud service, the key).
+          Translation cannot start if no model is available. If it says the model only thought and returned no translation, turn on “Cut the thinking short”.
+          If it is slow, raise “Passages at once”, or turn off “Pass the previous passage as context” to lighten the load.
+        </dd>
+
+        <dt>The sleep timer does not put the computer to sleep or shut it down</dt>
+        <dd>
+          On macOS, you may not have allowed the System Events permission request shown the first time.
+          Check System Settings → Privacy &amp; Security → Automation.
+          Shutdown stops if another app refuses to quit.
+        </dd>
+
+        <dt>Importing never finishes</dt>
+        <dd>For a large fixed-layout book, extracting the cover can take tens of seconds. Wait a little, or press “Stop”.</dd>
+      </dl>
+
+      <h4>Where data is stored</h4>
+      <p>Copies of imported books, settings, bookmarks and dictionaries are all stored in this folder:</p>
+      <dl class="deflist">
+        <dt>macOS</dt>
+        <dd><code>~/Library/Application Support/dev.veltrea.epub-reader/</code></dd>
+        <dt>Windows</dt>
+        <dd><code>%APPDATA%\dev.veltrea.epub-reader\</code></dd>
+      </dl>
+      <ul class="feature-list">
+        <li><code>books/</code> — copies of imported books</li>
+        <li><code>settings.json</code> — app settings</li>
+        <li><code>library.json</code> / <code>collections.json</code> / <code>dict.json</code> — the books, collections and reading dictionary of the first shelf. Files for shelves you added have <code>#</code> and the shelf’s ID after the name</li>
+        <li><code>loc-*</code> / <code>bm-*</code> / <code>css-*</code> / <code>dict-*</code> / <code>spread-*</code> / <code>prefs-*</code> — per-book reading position, bookmarks, CSS, dictionary, spread shift and display settings</li>
+        <li><code>Deleted/</code> — data from deleted shelves</li>
+      </ul>
+      <p>Deleting this folder resets the app to its initial state (imported books are removed too).</p>
+
+      <p>
+        If that does not solve it, please open an <a href="https://github.com/veltrea/epub-reader-js/issues">issue</a>.
+        It helps to describe which part of the book looked wrong and how (if you can, also how it looks in “As authored”), and whether you are on macOS or Windows.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+<footer class="colophon">
+  <div class="wrap">
+    <div class="colophon__grid">
+      <div>
+        <h3>Get it</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/releases">Releases (built app)</a></li>
+          <li><a href="https://github.com/veltrea/epub-reader-js">Source code (GitHub)</a></li>
+          <li><a href="./">Home page</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Speech engines</h3>
+        <ul>
+          <li><a href="https://voicevox.hiroshiba.jp/">VOICEVOX</a></li>
+          <li><a href="https://aivis-project.com/">AivisSpeech</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>License</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/blob/main/LICENSE">BSD-3-Clause</a></li>
+          <li><a href="https://github.com/veltrea/epub-reader-js/blob/main/THIRD_PARTY_LICENSES.md">Bundled third-party code</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="https://github.com/veltrea/epub-reader-js/issues">Feel free to open an issue</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon__seal">
+      <span>EPUB Reader — epub-reader</span>
+      <span>Screenshots use works from Aozora Bunko and the bundled sample</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>
