@@ -6,6 +6,14 @@ This project follows [Semantic Versioning](https://semver.org/). The human-facin
 is bumped by hand; the build number in `src-tauri/build-number` is incremented by
 `scripts/package-macos.sh` on every packaged build.
 
+## Unreleased
+
+### Changed
+
+- **The license is now MIT instead of BSD-3-Clause.** Everything bundled (foliate-js, zip.js,
+  fflate, Tauri and so on) is under a permissive license. Copies released up to 1.0.0 remain
+  under BSD-3-Clause.
+
 ## 1.0.0 — 2026-09-13
 
 ### Added

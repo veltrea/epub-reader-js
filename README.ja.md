@@ -175,7 +175,7 @@ cd src-tauri && cargo test --lib   # Rust のユニットテスト
 
 ## ライセンス
 
-BSD-3-Clause — [LICENSE](LICENSE) を参照。
+MIT — [LICENSE](LICENSE) を参照。
 
 同梱している第三者のソフトウェア（foliate-js・zip.js・fflate）はそれぞれの
 ライセンスに従います。全件を著作権者つきで

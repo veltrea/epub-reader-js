@@ -181,7 +181,7 @@ Architecture and the built-in test bus are described in
 
 ## License
 
-BSD-3-Clause — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
 Bundled third-party components (foliate-js, zip.js, fflate) keep their own licenses; each
 is listed with its copyright

@@ -1,7 +1,7 @@
 # 同梱物のライセンス
 
 このリポジトリは以下を同梱しています。いずれもそれぞれのライセンスに従って使うもので、
-本体の BSD-3-Clause（[LICENSE](LICENSE)）は適用されません。ライセンス全文は
+本体の MIT（[LICENSE](LICENSE)）は適用されません。ライセンス全文は
 下記のパスにコードと一緒に置いてあります。
 
 English: [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)

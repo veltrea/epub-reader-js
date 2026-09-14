@@ -6,6 +6,14 @@ English: [CHANGELOG.md](CHANGELOG.md)
 版番号は手で上げ、`src-tauri/build-number` のビルド番号は `scripts/package-macos.sh` が
 配布物を作るたびに進めます。
 
+## 未公開
+
+### 変更
+
+- **ライセンスを BSD-3-Clause から MIT に変えました。** 同梱しているもの（foliate-js・zip.js・
+  fflate・Tauri など）はどれも縛りの少ないライセンスです。1.0.0 までに配った版は、
+  BSD-3-Clause のままです。
+
 ## 1.0.0 — 2026-09-13
 
 ### 追加

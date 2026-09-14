@@ -1,7 +1,7 @@
 # Third-party licenses
 
 This repository bundles the components below. Each is used under its own
-license; the project's own BSD-3-Clause terms (see [LICENSE](LICENSE)) do not
+license; the project's own MIT terms (see [LICENSE](LICENSE)) do not
 apply to them. Full license texts are shipped alongside the code at the paths
 given here.
 
